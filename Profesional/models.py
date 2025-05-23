@@ -7,13 +7,13 @@ class Profesional(models.Model):
     apellido = models.TextField(null=False, blank=False, max_length=128)
     fecha_nacimiento = models.DateField(null=False, blank=False)
     direccion = models.TextField(null=True, blank=True, max_length=256)
-    telefono = models.TextField(null=False, blank=False, max_length=30)
+    telefono = models.TextField(null=False, blank=False, max_length=128)
     especialidad = models.TextField(null=False, blank=False, max_length=256)
     registro_profesional = models.TextField(null=False, blank=False, max_length=256)
     otro_contacto = models.TextField(null=True, blank=True, max_length=254)
 
     def __str__(self):
-        return f"{self.nombre} {self.apellido}"
+        return f"CI: {self.ci} {self.nombre} {self.apellido} Especialidad: {self.especialidad} Registro: {self.registro_profesional}"
 
 
 class Disponibilidad(models.Model):
@@ -22,7 +22,8 @@ class Disponibilidad(models.Model):
     hora_inicio = models.TimeField(null=False, blank=False)
     hora_fin = models.TimeField(null=False, blank=False)
     esta_disponible = models.BooleanField(null=False, blank=False, default=True)
-    profesional = models.ForeignKey(Profesional, on_delete=models.CASCADE, null=False, blank=False)
+    profesional = models.ForeignKey(Profesional, on_delete=models.CASCADE, null=False, blank=False, default=None)
 
     def __str__(self):
-        return f"{self.profesional} - {self.dia} ({self.hora_inicio}-{self.hora_fin})"
+        return (f"Profesional {self.profesional.nombre} {self.profesional.apellido} con CI: {self.profesional.ci} "
+                f"con disponibilidad el {self.dia} de ( {self.hora_inicio} a {self.hora_fin} )")

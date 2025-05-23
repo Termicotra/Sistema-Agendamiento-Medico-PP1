@@ -9,4 +9,6 @@ class Insumo(models.Model):
     laboratorio = models.TextField(null=False, blank=False, max_length=128)
 
     def __str__(self):
-        return self.nombre
+        return (f"Insumo: {self.nombre} con Cantidad: {self.cantidad} "
+                f"y Fecha de caducidad: {self.fecha_caducidad} "
+                f"del Laboratorio: {self.laboratorio}")
