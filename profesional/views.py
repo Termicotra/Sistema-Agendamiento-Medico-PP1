@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.db.models import Q
 from profesional.forms import ProfesionalForm, DisponibilidadForm
 from profesional.models import Profesional, Disponibilidad
 
@@ -13,8 +14,16 @@ def crear_profesional(request):
     return render(request, 'crear_profesional.html', {'form': form})
 
 def listar_profesionales(request):
+    query = request.GET.get('q', '')
     profesionales = Profesional.objects.all()
-    return render(request, 'listar_profesionales.html', {'profesionales': profesionales})
+    if query:
+        profesionales = profesionales.filter(
+            Q(nombre__icontains=query) |
+            Q(apellido__icontains=query) |
+            Q(especialidad__icontains=query) |
+            Q(ci__icontains=query)
+        )
+    return render(request, 'listar_profesionales.html', {'profesionales': profesionales, 'q': query})
 
 def eliminar_profesional(request, pk):
     profesional = Profesional.objects.get(pk=pk)

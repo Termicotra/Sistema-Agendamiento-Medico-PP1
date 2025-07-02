@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.db.models import Q
 from facturacion.models import Facturacion, DetalleFactura
 from facturacion.forms import FacturacionForm, DetalleFacturaForm
 
@@ -13,8 +14,17 @@ def crear_facturacion(request):
     return render(request, 'crear_facturacion.html', {'form': form})
 
 def listar_facturaciones(request):
+    query = request.GET.get('q', '')
     facturaciones = Facturacion.objects.all()
-    return render(request, 'listar_facturaciones.html', {'facturaciones': facturaciones})
+    if query:
+        facturaciones = facturaciones.filter(
+            Q(fecha__icontains=query) |
+            Q(estado__icontains=query) |
+            Q(metodo_pago__icontains=query) |
+            Q(turno__id_turno__icontains=query) |
+            Q(tipo_facturacion__icontains=query)
+        )
+    return render(request, 'listar_facturaciones.html', {'facturaciones': facturaciones, 'q': query})
 
 def eliminar_facturacion(request, pk):
     facturacion = Facturacion.objects.get(pk=pk)

@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.db.models import Q
 from turno.models import Turno
 from turno.forms import TurnoForm
 
@@ -13,8 +14,20 @@ def crear_turno(request):
     return render(request, 'crear_turno.html', {'form': form})
 
 def listar_turnos(request):
+    query = request.GET.get('q', '')
     turnos = Turno.objects.all()
-    return render(request, 'listar_turnos.html', {'turnos': turnos})
+    if query:
+        turnos = turnos.filter(
+            Q(fecha__icontains=query) |
+            Q(estado__icontains=query) |
+            Q(profesional__nombre__icontains=query) |
+            Q(profesional__apellido__icontains=query) |
+            Q(paciente__nombre__icontains=query) |
+            Q(paciente__apellido__icontains=query) |
+            Q(empleado__nombre__icontains=query) |
+            Q(empleado__apellido__icontains=query)
+        )
+    return render(request, 'listar_turnos.html', {'turnos': turnos, 'q': query})
 
 def eliminar_turno(request, pk):
     turno = Turno.objects.get(pk=pk)

@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.db.models import Q
 from inventario.models import Insumo
 from inventario.forms import InsumoForm
 
@@ -13,8 +14,15 @@ def crear_insumo(request):
     return render(request, 'crear_insumo.html', {'form': form})
 
 def listar_insumos(request):
+    query = request.GET.get('q', '')
     insumos = Insumo.objects.all()
-    return render(request, 'listar_insumos.html', {'insumos': insumos})
+    if query:
+        insumos = insumos.filter(
+            Q(nombre__icontains=query) |
+            Q(laboratorio__icontains=query) |
+            Q(fecha_caducidad__icontains=query)
+        )
+    return render(request, 'listar_insumos.html', {'insumos': insumos, 'q': query})
 
 def eliminar_insumo(request, pk):
     insumo = Insumo.objects.get(pk=pk)

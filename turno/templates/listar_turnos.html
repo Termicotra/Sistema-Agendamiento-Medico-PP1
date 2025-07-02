@@ -3,6 +3,11 @@
 {% block content %}
 <div class="table-container">
     <h1 style="text-align:center;">Lista de Turnos</h1>
+    <form method="get" style="margin-bottom:1rem; display:flex; gap:1rem; align-items:center;">
+        <input type="text" name="q" placeholder="Buscar por fecha, motivo, estado, profesional, paciente o empleado" value="{{ q|default:'' }}" style="flex:1; padding:0.5rem;">
+        <button type="submit" class="action-btn">Buscar</button>
+        <a href="?" class="action-btn" style="background:#aaa;">Limpiar</a>
+    </form>
     <a href="{% url 'crear_turno' %}" class="create-btn">Crear Nuevo Turno</a>
     <table>
         <thead>

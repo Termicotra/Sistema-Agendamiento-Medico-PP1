@@ -3,6 +3,11 @@
 {% block content %}
 <div class="table-container">
     <h1 style="text-align:center;">Lista de Profesionales</h1>
+    <form method="get" style="margin-bottom:1rem; display:flex; gap:1rem; align-items:center;">
+        <input type="text" name="q" placeholder="Buscar por nombre, apellido, especialidad o CI" value="{{ q|default:'' }}" style="flex:1; padding:0.5rem;">
+        <button type="submit" class="action-btn">Buscar</button>
+        <a href="?" class="action-btn" style="background:#aaa;">Limpiar</a>
+    </form>
     <div style="margin-bottom:2rem; display: flex; align-items: center; gap: 1rem;">
         <a href="{% url 'crear_profesional' %}" class="create-btn">Crear Nuevo Profesional</a>
         <a href="{% url 'listar_disponibilidades' %}" class="action-btn" style="margin-left:auto;">Ver Disponibilidad de Profesionales</a>
