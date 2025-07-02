@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+.detalle-container {
+    max-width: 900px;
+    margin: 2rem auto;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    padding: 2rem 2.5rem;
+}
+.detalle-container h1 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+.detalle-container table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+}
+.detalle-container th, .detalle-container td {
+    padding: 0.7rem 1rem;
+    border-bottom: 1px solid #e0e0e0;
+}
+.detalle-container thead {
+    background: #1976d2;
+    color: #fff;
+}
+.detalle-container tr:hover {
+    background: #f5faff;
+}
+.detalle-container .action-btn {
+    background: #e53935;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 0.4rem 1rem;
+    text-decoration: none;
+    transition: background 0.2s;
+}
+.detalle-container .action-btn:hover {
+    background: #b71c1c;
+}
+.detalle-container form button {
+    background: #43a047;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 0.6rem 1.5rem;
+    font-size: 1rem;
+    margin-top: 0.5rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.detalle-container form button:hover {
+    background: #388e3c;
+}
+.detalle-container a {
+    color: #1976d2;
+    text-decoration: underline;
+    margin-top: 1.2rem;
+    display: inline-block;
+}
+</style>
+<div class="detalle-container">
+<h1>Detalle de Facturación ID {{ facturacion.id_facturacion }}</h1>
+<p><b>Fecha:</b> {{ facturacion.fecha }}</p>
+<p><b>Monto Total:</b> {{ facturacion.monto_total }}</p>
+<p><b>Método de Pago:</b> {{ facturacion.metodo_pago }}</p>
+<p><b>Tipo:</b> {{ facturacion.tipo_facturacion }}</p>
+<p><b>Estado:</b> {{ facturacion.estado }}</p>
+<p><b>Turno:</b> {{ facturacion.turno }}</p>
+
+<h2>Detalles de la Factura</h2>
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Monto</th>
+            <th>Descripción</th>
+            <th>Descuento</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for detalle in detalles %}
+        <tr>
+            <td>{{ detalle.id_detalle_factura }}</td>
+            <td>{{ detalle.monto }}</td>
+            <td>{{ detalle.descripción }}</td>
+            <td>{{ detalle.descuento }}</td>
+            <td>
+                <a href="{% url 'eliminar_detalle_factura' facturacion.pk detalle.pk %}" class="action-btn">Eliminar</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h3>Agregar Detalle</h3>
+<form method="post">
+    {% csrf_token %}
+    {{ detalle_form.as_p }}
+    <button type="submit">Agregar Detalle</button>
+</form>
+
+<a href="{% url 'listar_facturaciones' %}">Volver a la lista de facturaciones</a>
+</div>
+{% endblock %}

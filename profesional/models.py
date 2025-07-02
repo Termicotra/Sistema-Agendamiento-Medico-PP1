@@ -13,17 +13,24 @@ class Profesional(models.Model):
     otro_contacto = models.CharField(null=True, blank=True, max_length=254)
 
     def __str__(self):
-        return f"CI: {self.ci} {self.nombre} {self.apellido} Especialidad: {self.especialidad} Registro: {self.registro_profesional}"
+        return f"{self.nombre} {self.apellido} {self.especialidad} "
 
 
 class Disponibilidad(models.Model):
     id_disponibilidad = models.AutoField(primary_key=True)
-    dia = models.DateField(null=False, blank=False)
+    DIAS_SEMANA = [
+        ("Lunes", "Lunes"),
+        ("Martes", "Martes"),
+        ("Miercoles", "Miércoles"),
+        ("Jueves", "Jueves"),
+        ("Sabado", "Sábado"),
+        ("Domingo", "Domingo"),
+    ]
+    dia = models.CharField(max_length=16, choices=DIAS_SEMANA, null=False, blank=False)
     hora_inicio = models.TimeField(null=False, blank=False)
     hora_fin = models.TimeField(null=False, blank=False)
     esta_disponible = models.BooleanField(null=False, blank=False, default=True)
     profesional = models.ForeignKey(Profesional, on_delete=models.CASCADE, null=False, blank=False, default=None)
 
     def __str__(self):
-        return (f"Profesional {self.profesional.nombre} {self.profesional.apellido} con CI: {self.profesional.ci} "
-                f"con disponibilidad el {self.dia} de ( {self.hora_inicio} a {self.hora_fin} )")
+        return (f"{self.profesional.nombre} {self.profesional.apellido} {self.profesional.especialidad}")

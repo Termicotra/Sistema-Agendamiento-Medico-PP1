@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="table-container">
+    <h1 style="text-align:center;">Lista de Turnos</h1>
+    <a href="{% url 'crear_turno' %}" class="create-btn">Crear Nuevo Turno</a>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Fecha</th>
+                <th>Hora</th>
+                <th>Modalidad</th>
+                <th>Estado</th>
+                <th>Motivo</th>
+                <th>Profesional</th>
+                <th>Paciente</th>
+                <th>Empleado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for turno in turnos %}
+                <tr>
+                    <td>{{ turno.id_turno }}</td>
+                    <td>{{ turno.fecha }}</td>
+                    <td>{{ turno.hora }}</td>
+                    <td>{{ turno.modalidad }}</td>
+                    <td>{{ turno.estado }}</td>
+                    <td>{{ turno.motivo }}</td>
+                    <td>{{ turno.profesional }}</td>
+                    <td>{{ turno.paciente }}</td>
+                    <td>{{ turno.empleado }}</td>
+                    <td class="td-acciones">
+                        <a href="{% url 'editar_turno' turno.pk %}" class="action-btn">Editar</a>
+                        <a href="{% url 'eliminar_turno' turno.pk %}" class="action-btn delete">Eliminar</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{%endblock%}

@@ -1,10 +1,7 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Editar Paciente</title>
-</head>
-<body>
+{% extends "base.html" %}
+
+{% block content %}
+<div class="form-container">
     <h1>Editar Paciente</h1>
     <form method="post">
         {% csrf_token %}
@@ -12,5 +9,5 @@
         <button type="submit">Actualizar</button>
     </form>
     <a href="{% url 'listar_pacientes' %}">Volver a la lista de pacientes</a>
-</body>
-</html>
+</div>
+{%endblock%}

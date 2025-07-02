@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="table-container">
+    <h1 style="text-align:center;">Lista de Profesionales</h1>
+    <div style="margin-bottom:2rem; display: flex; align-items: center; gap: 1rem;">
+        <a href="{% url 'crear_profesional' %}" class="create-btn">Crear Nuevo Profesional</a>
+        <a href="{% url 'listar_disponibilidades' %}" class="action-btn" style="margin-left:auto;">Ver Disponibilidad de Profesionales</a>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>CI</th>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Fecha de Nacimiento</th>
+                <th>Teléfono</th>
+                <th>Dirección</th>
+                <th>Especialidad</th>
+                <th>Registro Profesional</th>
+                <th>Otro Contacto</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for profesional in profesionales %}
+                <tr>
+                    <td>{{ profesional.id_profesional }}</td>
+                    <td>{{ profesional.ci }}</td>
+                    <td>{{ profesional.nombre }}</td>
+                    <td>{{ profesional.apellido }}</td>
+                    <td>{{ profesional.fecha_nacimiento }}</td>
+                    <td>{{ profesional.telefono }}</td>
+                    <td>{{ profesional.direccion }}</td>
+                    <td>{{ profesional.especialidad }}</td>
+                    <td>{{ profesional.registro_profesional }}</td>
+                    <td>{{ profesional.otro_contacto }}</td>
+                    <td class="td-acciones">
+                        <a href="{% url 'listar_disponibilidades' %}?profesional={{ profesional.pk }}" class="action-btn">Ver</a>
+                        <a href="{% url 'editar_profesional' profesional.pk %}" class="action-btn">Editar</a>
+                        <a href="{% url 'eliminar_profesional' profesional.pk %}" class="action-btn delete">Eliminar</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{%endblock%}

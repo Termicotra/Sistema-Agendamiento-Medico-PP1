@@ -31,7 +31,5 @@ class Turno(models.Model):
     empleado = models.ForeignKey(Empleado, on_delete=models.CASCADE, null=True, blank=True, default=None)
 
     def __str__(self):
-        return (f"Turno de Paciente {self.paciente.nombre} {self.paciente.apellido} con CI: {self.paciente.ci} "
-                f"el {self.fecha} a las {self.hora}"
-                f" con el Profesional {self.profesional.nombre} {self.profesional.apellido} con CI: {self.profesional.ci} con Especialidad {self.profesional.especialidad} "
-                f"- Estado: {self.estado}")
+        return (f"{self.paciente.nombre} {self.paciente.apellido} {self.paciente.ci} "
+                f"{self.profesional.especialidad}")

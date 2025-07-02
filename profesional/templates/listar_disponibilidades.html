@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="table-container">
+    <h1>Disponibilidad de Profesionales</h1>
+    {% if profesional_filtrado %}
+        <div style="margin-bottom:1rem;">
+            <strong>Filtrando por profesional:</strong> {{ profesional_filtrado.nombre }} {{ profesional_filtrado.apellido }}
+            <a href="{% url 'listar_disponibilidades' %}" class="action-btn" style="margin-left:1rem;">Quitar filtro</a>
+        </div>
+    {% endif %}
+    <a href="{% url 'crear_disponibilidad' %}" class="create-btn">Agregar Disponibilidad</a>
+    <table>
+        <thead>
+            <tr>
+                <th>Profesional</th>
+                <th>Día</th>
+                <th>Hora Inicio</th>
+                <th>Hora Fin</th>
+                <th>¿Disponible?</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for disp in disponibilidades %}
+            <tr>
+                <td>{{ disp.profesional.nombre }} {{ disp.profesional.apellido }}</td>
+                <td>{{ disp.dia }}</td>
+                <td>{{ disp.hora_inicio }}</td>
+                <td>{{ disp.hora_fin }}</td>
+                <td>{{ disp.esta_disponible|yesno:"Sí,No" }}</td>
+                <td class="td-acciones">
+                    <a href="{% url 'editar_disponibilidad' disp.pk %}" class="action-btn">Editar</a>
+                    <a href="{% url 'eliminar_disponibilidad' disp.pk %}" class="action-btn delete">Eliminar</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6">Sin disponibilidades registradas.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{% url 'listar_profesionales' %}" class="action-btn">Volver a Profesionales</a>
+</div>
+{% endblock %}

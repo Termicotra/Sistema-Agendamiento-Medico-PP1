@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="table-container">
+    <h1 style="text-align:center;">Lista de Facturaciones</h1>
+    <a href="{% url 'crear_facturacion' %}" class="create-btn">Crear Nueva Facturación</a>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Fecha</th>
+                <th>Monto Total</th>
+                <th>Método de Pago</th>
+                <th>Tipo</th>
+                <th>Estado</th>
+                <th>Turno</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for facturacion in facturaciones %}
+                <tr>
+                    <td>{{ facturacion.id_facturacion }}</td>
+                    <td>{{ facturacion.fecha }}</td>
+                    <td>{{ facturacion.monto_total }}</td>
+                    <td>{{ facturacion.metodo_pago }}</td>
+                    <td>{{ facturacion.tipo_facturacion }}</td>
+                    <td>{{ facturacion.estado }}</td>
+                    <td>{{ facturacion.turno }}</td>
+                    <td class="td-acciones">
+                        <a href="{% url 'detalle_facturacion' facturacion.pk %}" class="action-btn" style="background:#0288d1;">Detalles</a>
+                        <a href="{% url 'editar_facturacion' facturacion.pk %}" class="action-btn">Editar</a>
+                        <a href="{% url 'eliminar_facturacion' facturacion.pk %}" class="action-btn delete">Eliminar</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{%endblock%}

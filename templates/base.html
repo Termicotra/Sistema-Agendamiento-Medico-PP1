@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Sistema de Agendamiento Medico</title>
+    <link rel="stylesheet" href="{% static 'global_styles.css' %}">
+    {% block nav %}
+    <style>
+    nav ul {
+        display: flex;
+        flex-direction: row;
+        gap: 1.5rem;
+        list-style: none;
+        padding: 0;
+        margin: 0 0 2rem 0;
+        justify-content: center;
+    }
+    nav ul li {
+        display: inline;
+    }
+    nav ul li a {
+        padding: 0.7rem 1.5rem;
+        background: #1976d2;
+        color: white;
+        border-radius: 6px;
+        text-decoration: none;
+        font-size: 1rem;
+        transition: background 0.2s;
+    }
+    nav ul li a:hover {
+        background: #1565c0;
+    }
+    </style>
+    <nav>
+        <ul>
+            <li>
+                <a href="/">Home</a>
+            </li>
+            <li>
+                <a href="/paciente/">Paciente</a>
+            </li>
+            <li>
+                <a href="/facturacion/">Facturación</a>
+            </li>
+            <li>
+                <a href="/inventario/">Inventario</a>
+            </li>
+            <li>
+                <a href="/empleado/">Empleado</a>
+            </li>
+            <li>
+                <a href="/profesional/">Profesional</a>
+            </li>
+            <li>
+                <a href="/turno/">Turno</a>
+            </li>
+        </ul>
+    </nav>
+    {% endblock %}
+</head>
+<body>
+
+
+{% block content %}
+{% endblock %}
+
+</body>
+</html>

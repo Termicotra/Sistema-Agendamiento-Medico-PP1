@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="table-container">
+    <h1 style="text-align:center;">Lista de Insumos</h1>
+    <a href="{% url 'crear_insumo' %}" class="create-btn">Crear Nuevo Insumo</a>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Cantidad</th>
+                <th>Fecha de Caducidad</th>
+                <th>Laboratorio</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for insumo in insumos %}
+                <tr>
+                    <td>{{ insumo.id_insumo }}</td>
+                    <td>{{ insumo.nombre }}</td>
+                    <td>{{ insumo.descripcion }}</td>
+                    <td>{{ insumo.cantidad }}</td>
+                    <td>{{ insumo.fecha_caducidad }}</td>
+                    <td>{{ insumo.laboratorio }}</td>
+                    <td class="td-acciones">
+                        <a href="{% url 'editar_insumo' insumo.pk %}" class="action-btn">Editar</a>
+                        <a href="{% url 'eliminar_insumo' insumo.pk %}" class="action-btn delete">Eliminar</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{%endblock%}
