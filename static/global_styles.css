@@ -1,0 +1,159 @@
+/* Estilos globales para todas las vistas CRUD */
+.table-container {
+    max-width: 1100px;
+    margin: 2rem auto;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    padding: 2rem;
+    overflow-x: auto;
+}
+table {
+    width: 100%;
+    max-width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    table-layout: auto;
+}
+thead {
+    background: #1976d2;
+    color: #fff;
+}
+th, td {
+    padding: 0.8rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid #e0e0e0;
+}
+tr:hover, tbody tr:hover, td:hover, th:hover {
+    background: #f5faff !important;
+    /* Elimina cualquier fondo blanco heredado */
+}
+tbody tr:hover td, tbody tr:hover th {
+    background: #f5faff !important;
+}
+/* Solución: No cambiar el fondo a blanco al hacer hover sobre la fila */
+tr:hover {
+    background: #f5faff !important;
+}
+
+/* Ajuste para hover SOLO en filas del cuerpo, no en encabezados */
+tbody tr:hover {
+    background: #f5faff !important;
+}
+thead tr:hover, thead th:hover, thead td:hover {
+    background: #1976d2 !important;
+    color: #fff !important;
+}
+tr:hover, td:hover, th:hover {
+    background: unset !important;
+}
+
+/* Separación entre botones de acción */
+.action-btn {
+    background: #1976d2;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 0.4rem 1rem;
+    margin-right: 0.5rem;
+    text-decoration: none;
+    transition: background 0.2s;
+    display: inline-block;
+    vertical-align: middle;
+}
+.action-btn:hover {
+    background: #1565c0;
+}
+.action-btn:last-child {
+    margin-right: 0;
+}
+
+/* Botón eliminar: color y separación */
+.action-btn.delete {
+    background: #e53935;
+    margin-left: 0;
+    margin-right: 0;
+}
+.action-btn.delete:hover {
+    background: #b71c1c;
+}
+.create-btn {
+    background: #43a047;
+    color: #fff;
+    border-radius: 5px;
+    padding: 0.6rem 1.5rem;
+    text-decoration: none;
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+    display: inline-block;
+    transition: background 0.2s;
+}
+.create-btn:hover {
+    background: #388e3c;
+}
+.form-container {
+    max-width: 500px;
+    margin: 2rem auto;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    padding: 2rem 2.5rem;
+}
+.form-container h1 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+.form-container button {
+    background: #1976d2;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 0.7rem 2rem;
+    font-size: 1.1rem;
+    margin-top: 1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.form-container button:hover {
+    background: #1565c0;
+}
+.form-container a {
+    display: inline-block;
+    margin-top: 1.2rem;
+    color: #1976d2;
+    text-decoration: underline;
+}
+.delete-container {
+    max-width: 400px;
+    margin: 3rem auto;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    padding: 2rem 2.5rem;
+    text-align: center;
+}
+.delete-container button {
+    background: #e53935;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 0.7rem 2rem;
+    font-size: 1.1rem;
+    margin-top: 1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.delete-container button:hover {
+    background: #b71c1c;
+}
+.delete-container a {
+    display: inline-block;
+    margin-top: 1.2rem;
+    color: #1976d2;
+    text-decoration: underline;
+}
+
+/* Ajuste para evitar solapamiento de botones */
+.td-acciones {
+    white-space: nowrap;
+}
