@@ -8,7 +8,7 @@ class InsumoModelTest(TestCase):
             nombre='Paracetamol',
             descripcion='Analgésico',
             cantidad=100,
-            fecha_caducidad='2025-12-31',
+            fecha_caducidad='2025-12-31',  # YYYY-MM-DD
             laboratorio='LabX'
         )
         self.assertEqual(str(insumo), 'Paracetamol LabX')
@@ -20,7 +20,7 @@ class InsumoViewTest(TestCase):
             nombre='Ibuprofeno',
             descripcion='Antiinflamatorio',
             cantidad=50,
-            fecha_caducidad='2024-11-30',
+            fecha_caducidad='2024-11-30',  # YYYY-MM-DD
             laboratorio='LabY'
         )
 
@@ -36,7 +36,7 @@ class InsumoViewTest(TestCase):
             'nombre': 'Amoxicilina',
             'descripcion': 'Antibiótico',
             'cantidad': 30,
-            'fecha_caducidad': '2026-01-01',
+            'fecha_caducidad': '01/01/2026',
             'laboratorio': 'LabZ'
         }
         response = self.client.post(url, data)
@@ -49,7 +49,7 @@ class InsumoViewTest(TestCase):
             'nombre': 'Ibuprofeno Editado',
             'descripcion': 'Antiinflamatorio',
             'cantidad': 50,
-            'fecha_caducidad': '2024-11-30',
+            'fecha_caducidad': '30/11/2024',
             'laboratorio': 'LabY'
         }
         response = self.client.post(url, data)

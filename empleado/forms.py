@@ -7,5 +7,5 @@ class EmpleadoForm(forms.ModelForm):
         fields = ['ci', 'nombre', 'apellido', 'fecha_nacimiento', 'direccion', 'telefono', 'cargo']
         labels = {
             'ci': 'Cédula de Identidad',
-            'fecha_nacimiento': 'Fecha de nacimiento (año-mes-día)',
+            'fecha_nacimiento': 'Fecha de nacimiento (día/mes/año)',
         }

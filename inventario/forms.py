@@ -6,5 +6,5 @@ class InsumoForm(forms.ModelForm):
         model = Insumo
         fields = ['nombre', 'descripcion', 'cantidad', 'fecha_caducidad', 'laboratorio']
         labels = {
-            'fecha_caducidad': 'Fecha de caducidad (año-mes-día)',
+            'fecha_caducidad': 'Fecha de caducidad (día/mes/año)',
         }

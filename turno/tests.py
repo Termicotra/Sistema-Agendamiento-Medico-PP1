@@ -42,7 +42,7 @@ class TurnoViewTest(TestCase):
     def test_crear_turno_url(self):
         url = reverse('crear_turno')
         data = {
-            'fecha': '2024-01-02',
+            'fecha': '02/01/2024',
             'hora': '11:00',
             'modalidad': 'Presencial',
             'estado': 'Activo',
@@ -59,7 +59,7 @@ class TurnoViewTest(TestCase):
     def test_editar_turno_url(self):
         url = reverse('editar_turno', args=[self.turno.pk])
         data = {
-            'fecha': '2024-01-01',
+            'fecha': '01/01/2024',
             'hora': '10:00',
             'modalidad': 'Virtual',
             'estado': 'Cancelado',

@@ -7,7 +7,7 @@ class TurnoForm(forms.ModelForm):
         fields = ['fecha', 'hora', 'modalidad', 'estado', 'motivo', 'fue_notificado', 
                  'profesional', 'paciente', 'empleado']
         labels = {
-            'fecha': 'Fecha (año-mes-día)',
+            'fecha': 'Fecha (día/mes/año)',
             'hora': 'Hora (hh:mm)',
             'ci': 'Cédula de Identidad',
         }

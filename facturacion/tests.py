@@ -47,11 +47,11 @@ class FacturacionViewTest(TestCase):
     def test_crear_facturacion_url(self):
         url = reverse('crear_facturacion')
         data = {
-            'fecha': '2024-01-02',
+            'fecha': '02/01/2024',
             'monto_total': 200,
             'metodo_pago': 'Efectivo',
             'tipo_facturacion': 2,
-            'estado': 'Pendiente',  # Se agrega el campo estado
+            'estado': 'Pendiente',
             'turno': self.turno.pk
         }
         response = self.client.post(url, data)
@@ -61,7 +61,7 @@ class FacturacionViewTest(TestCase):
     def test_editar_facturacion_url(self):
         url = reverse('editar_facturacion', args=[self.facturacion.pk])
         data = {
-            'fecha': '2024-01-01',
+            'fecha': '01/01/2024',
             'monto_total': 150,
             'metodo_pago': 'Efectivo',
             'tipo_facturacion': 1,

@@ -8,7 +8,7 @@ class ProfesionalForm(forms.ModelForm):
                  'especialidad', 'registro_profesional', 'otro_contacto']
         labels = {
             'ci': 'Cédula de Identidad',
-            'fecha_nacimiento': 'Fecha de nacimiento (año-mes-día)',
+            'fecha_nacimiento': 'Fecha de nacimiento (día/mes/año)',
         }
 
 class DisponibilidadForm(forms.ModelForm):

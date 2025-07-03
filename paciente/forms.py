@@ -8,7 +8,7 @@ class PacienteForm(forms.ModelForm):
         fields = ['ci', 'nombre', 'apellido', 'fecha_nacimiento', 'telefono', 'direccion']
         labels = {
             'ci': 'Cédula de Identidad',
-            'fecha_nacimiento': 'Fecha de nacimiento (año-mes-día)',
+            'fecha_nacimiento': 'Fecha de nacimiento (día/mes/año)',
         }
 
 
@@ -17,7 +17,7 @@ class HistorialClinicoForm(forms.ModelForm):
         model = HistorialClinico
         fields = '__all__'
         labels = {
-            'fecha': 'Fecha (año-mes-día)',
+            'fecha': 'Fecha (día/mes/año)',
         }
 
 
@@ -26,5 +26,5 @@ class ReporteMedicoForm(forms.ModelForm):
         model = ReporteMedico
         fields = '__all__'
         labels = {
-            'fecha': 'Fecha (año-mes-día)',
+            'fecha': 'Fecha (día/mes/año)',
         }

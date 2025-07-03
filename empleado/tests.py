@@ -8,7 +8,7 @@ class EmpleadoModelTest(TestCase):
             ci='12345678',
             nombre='Juan',
             apellido='Pérez',
-            fecha_nacimiento='1990-01-01',
+            fecha_nacimiento='1990-01-01',  # YYYY-MM-DD
             direccion='Calle Falsa 123',
             telefono=123456789,
             cargo='Recepcionista'
@@ -22,7 +22,7 @@ class EmpleadoViewTest(TestCase):
             ci='87654321',
             nombre='Ana',
             apellido='García',
-            fecha_nacimiento='1985-05-05',
+            fecha_nacimiento='1985-05-05',  # YYYY-MM-DD
             direccion='Av. Siempre Viva 742',
             telefono=987654321,
             cargo='Enfermera'
@@ -40,7 +40,7 @@ class EmpleadoViewTest(TestCase):
             'ci': '11223344',
             'nombre': 'Carlos',
             'apellido': 'López',
-            'fecha_nacimiento': '1992-02-02',
+            'fecha_nacimiento': '02/02/1992',
             'direccion': 'Calle Nueva 456',
             'telefono': 5551234,
             'cargo': 'Doctor'
@@ -55,7 +55,7 @@ class EmpleadoViewTest(TestCase):
             'ci': '87654321',
             'nombre': 'Ana Editada',
             'apellido': 'García',
-            'fecha_nacimiento': '1985-05-05',
+            'fecha_nacimiento': '05/05/1985',
             'direccion': 'Av. Siempre Viva 742',
             'telefono': 987654321,
             'cargo': 'Enfermera'
