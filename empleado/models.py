@@ -6,7 +6,7 @@ class Empleado(models.Model):
     nombre = models.CharField(null=False, blank=False)
     apellido = models.CharField(null=False, blank=False)
     fecha_nacimiento = models.DateField(null=False, blank=False)
-    direccion = models.CharField(null=True, blank=True)
+    direccion = models.CharField(blank=True)
     telefono = models.IntegerField(null=True, blank=True)
     cargo = models.CharField(null=False, blank=False)
 

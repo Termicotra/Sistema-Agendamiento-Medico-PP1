@@ -12,7 +12,7 @@ class Anuncio(models.Model):
     fecha = models.DateField(null=False, blank=False)
     hora = models.TimeField(null=True, blank=True)
     titulo = models.CharField(null=False, blank=False, max_length=256)
-    descripcion = models.TextField(null=True, blank=True, max_length=512)
+    descripcion = models.TextField(blank=True, max_length=512)
     estado = models.CharField(
         choices=EstadoAnuncioChoices.choices,
         default=EstadoAnuncioChoices.ACTIVO

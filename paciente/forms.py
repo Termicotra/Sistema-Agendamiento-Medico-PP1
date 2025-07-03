@@ -15,7 +15,15 @@ class PacienteForm(forms.ModelForm):
 class HistorialClinicoForm(forms.ModelForm):
     class Meta:
         model = HistorialClinico
-        fields = '__all__'
+        fields = [
+            'fecha',
+            'hora',
+            'razon',
+            'descripcion',
+            'paciente',
+            'profesional',
+            'insumo',
+        ]
         labels = {
             'fecha': 'Fecha (día/mes/año)',
         }
@@ -24,7 +32,12 @@ class HistorialClinicoForm(forms.ModelForm):
 class ReporteMedicoForm(forms.ModelForm):
     class Meta:
         model = ReporteMedico
-        fields = '__all__'
+        fields = [
+            'fecha',
+            'descripcion',
+            'paciente',
+            'profesional',
+        ]
         labels = {
             'fecha': 'Fecha (día/mes/año)',
         }

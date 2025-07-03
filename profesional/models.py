@@ -6,11 +6,11 @@ class Profesional(models.Model):
     nombre = models.CharField(null=False, blank=False, max_length=128)
     apellido = models.CharField(null=False, blank=False, max_length=128)
     fecha_nacimiento = models.DateField(null=False, blank=False)
-    direccion = models.CharField(null=True, blank=True, max_length=256)
+    direccion = models.CharField(blank=True, max_length=256)
     telefono = models.CharField(null=False, blank=False, max_length=128)
     especialidad = models.CharField(null=False, blank=False, max_length=256)
     registro_profesional = models.CharField(null=False, blank=False, max_length=256)
-    otro_contacto = models.CharField(null=True, blank=True, max_length=254)
+    otro_contacto = models.CharField(blank=True, max_length=254)
 
     def __str__(self):
         return f"{self.nombre} {self.apellido} - {self.especialidad} "
