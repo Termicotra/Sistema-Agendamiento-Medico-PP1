@@ -11,4 +11,4 @@ class Empleado(models.Model):
     cargo = models.CharField(null=False, blank=False)
 
     def __str__(self):
-        return f"CI: {self.ci} {self.nombre} {self.apellido} con Cargo {self.cargo}"
+        return f"{self.nombre} {self.apellido} - {self.cargo}"

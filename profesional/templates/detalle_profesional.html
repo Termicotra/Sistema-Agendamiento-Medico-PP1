@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="table-container">
+    <h1>Detalle del Profesional</h1>
+    <table>
+        <tr><th>CI</th><td>{{ profesional.ci }}</td></tr>
+        <tr><th>Nombre</th><td>{{ profesional.nombre }}</td></tr>
+        <tr><th>Apellido</th><td>{{ profesional.apellido }}</td></tr>
+        <tr><th>Fecha de Nacimiento</th><td>{{ profesional.fecha_nacimiento }}</td></tr>
+        <tr><th>Dirección</th><td>{{ profesional.direccion }}</td></tr>
+        <tr><th>Teléfono</th><td>{{ profesional.telefono }}</td></tr>
+        <tr><th>Especialidad</th><td>{{ profesional.especialidad }}</td></tr>
+        <tr><th>Registro Profesional</th><td>{{ profesional.registro_profesional }}</td></tr>
+        <tr><th>Otro Contacto</th><td>{{ profesional.otro_contacto }}</td></tr>
+    </table>
+    <h2>Disponibilidad</h2>
+    <a href="{% url 'crear_disponibilidad' profesional.pk %}" class="create-btn">Agregar Disponibilidad</a>
+    <table>
+        <thead>
+            <tr>
+                <th>Día</th>
+                <th>Hora Inicio</th>
+                <th>Hora Fin</th>
+                <th>¿Disponible?</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for disp in disponibilidades %}
+            <tr>
+                <td>{{ disp.dia }}</td>
+                <td>{{ disp.hora_inicio }}</td>
+                <td>{{ disp.hora_fin }}</td>
+                <td>{{ disp.esta_disponible|yesno:"Sí,No" }}</td>
+                <td class="td-acciones">
+                    <a href="{% url 'editar_disponibilidad' disp.pk %}" class="action-btn">Editar</a>
+                    <a href="{% url 'eliminar_disponibilidad' disp.pk %}" class="action-btn delete">Eliminar</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5">Sin disponibilidades registradas.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{% url 'listar_profesionales' %}" class="action-btn">Volver a la lista</a>
+</div>
+{% endblock %}

@@ -1,12 +1,14 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Listar Paciente</title>
-</head>
-<body>
-    <h1>Lista de Pacientes</h1>
-    <a href="{% url 'crear_paciente' %}">Crear Nuevo Paciente</a>
+{% extends "base.html" %}
+
+{% block content %}
+<div class="table-container">
+    <h1 style="text-align:center;">Lista de Pacientes</h1>
+    <form method="get" style="margin-bottom:1rem; display:flex; gap:1rem; align-items:center;">
+        <input type="text" name="q" placeholder="Buscar por nombre, apellido o CI" value="{{ q|default:'' }}" style="flex:1; padding:0.5rem;">
+        <button type="submit" class="action-btn">Buscar</button>
+        <a href="?" class="action-btn" style="background:#aaa;">Limpiar</a>
+    </form>
+    <a href="{% url 'crear_paciente' %}" class="create-btn">Crear Nuevo Paciente</a>
     <table>
         <thead>
             <tr>
@@ -30,12 +32,14 @@
                     <td>{{ paciente.fecha_nacimiento }}</td>
                     <td>{{ paciente.telefono }}</td>
                     <td>{{ paciente.direccion }}</td>
-                    <td>
-                        <a href="{% url 'editar_paciente' paciente.pk %}">Editar</a>
-                        <a href="{% url 'eliminar_paciente' paciente.pk %}">Eliminar</a>
+                    <td class="td-acciones">
+                        <a href="{% url 'editar_paciente' paciente.pk %}" class="action-btn">Editar</a>
+                        <a href="{% url 'eliminar_paciente' paciente.pk %}" class="action-btn delete">Eliminar</a>
+                        <a href="{% url 'listar_historiales' %}?q={{ paciente.nombre }}+{{ paciente.apellido }}+{{ paciente.ci }}" class="action-btn" style="background:#0288d1;">Ver Historial</a>
                     </td>
                 </tr>
             {% endfor %}
         </tbody>
     </table>
-</html>
+</div>
+{%endblock%}

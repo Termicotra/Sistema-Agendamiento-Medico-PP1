@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="table-container">
+    <h1 style="text-align:center;">Lista de Profesionales</h1>
+    <form method="get" style="margin-bottom:1rem; display:flex; gap:1rem; align-items:center;">
+        <input type="text" name="q" placeholder="Buscar por nombre, apellido, especialidad o CI" value="{{ q|default:'' }}" style="flex:1; padding:0.5rem;">
+        <button type="submit" class="action-btn">Buscar</button>
+        <a href="?" class="action-btn" style="background:#aaa;">Limpiar</a>
+    </form>
+    <div style="margin-bottom:2rem; display: flex; gap: 1rem; justify-content: space-between; align-items: center;">
+        <a href="{% url 'crear_profesional' %}" class="create-btn" style="min-width:200px; text-align:center;">Crear Nuevo Profesional</a>
+        <div style="display:flex; gap:1rem;">
+            <a href="{% url 'listar_disponibilidades' %}" class="create-btn" style="min-width:200px; text-align:center;">Disponibilidad Profesionales</a>
+            <a href="{% url 'listar_historiales' %}" class="create-btn" style="min-width:200px; text-align:center; background:#0288d1;">Historial Clínico</a>
+            <a href="{% url 'listar_reportes' %}" class="create-btn" style="min-width:200px; text-align:center; background:#388e3c;">Reportes Médicos</a>
+        </div>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>CI</th>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Fecha de Nacimiento</th>
+                <th>Teléfono</th>
+                <th>Dirección</th>
+                <th>Especialidad</th>
+                <th>Registro Profesional</th>
+                <th>Otro Contacto</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for profesional in profesionales %}
+                <tr>
+                    <td>{{ profesional.id_profesional }}</td>
+                    <td>{{ profesional.ci }}</td>
+                    <td>{{ profesional.nombre }}</td>
+                    <td>{{ profesional.apellido }}</td>
+                    <td>{{ profesional.fecha_nacimiento }}</td>
+                    <td>{{ profesional.telefono }}</td>
+                    <td>{{ profesional.direccion }}</td>
+                    <td>{{ profesional.especialidad }}</td>
+                    <td>{{ profesional.registro_profesional }}</td>
+                    <td>{{ profesional.otro_contacto }}</td>
+                    <td class="td-acciones">
+                        <a href="{% url 'listar_disponibilidades' %}?profesional={{ profesional.pk }}" class="action-btn">Ver Disponibilidad</a>
+                        <a href="{% url 'editar_profesional' profesional.pk %}" class="action-btn">Editar</a>
+                        <a href="{% url 'eliminar_profesional' profesional.pk %}" class="action-btn delete">Eliminar</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{%endblock%}

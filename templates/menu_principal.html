@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block nav %}{% endblock %}
+
+{% block content %}
+<style>
+.menu-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 70vh;
+}
+.menu-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    align-items: center;
+}
+.menu-buttons a {
+    padding: 1rem 2.5rem;
+    font-size: 1.2rem;
+    background: #1976d2;
+    color: white;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: background 0.2s;
+}
+.menu-buttons a:hover {
+    background: #1565c0;
+}
+</style>
+<div class="menu-container">
+    <h1>Menú Principal</h1>
+    <div class="menu-buttons">
+        <a href="/paciente/">Paciente</a>
+        <a href="/facturacion/">Facturación</a>
+        <a href="/inventario/">Inventario</a>
+        <a href="/empleado/">Empleado</a>
+        <a href="/profesional/">Profesional</a>
+        <a href="/turno/">Turno</a>
+    </div>
+</div>
+{% endblock %}

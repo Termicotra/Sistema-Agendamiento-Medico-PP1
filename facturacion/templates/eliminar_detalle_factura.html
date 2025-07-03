@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+.delete-container {
+    max-width: 400px;
+    margin: 3rem auto;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    padding: 2rem 2.5rem;
+    text-align: center;
+}
+.delete-container button {
+    background: #e53935;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 0.7rem 2rem;
+    font-size: 1.1rem;
+    margin-top: 1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.delete-container button:hover {
+    background: #b71c1c;
+}
+.delete-container a {
+    display: inline-block;
+    margin-top: 1.2rem;
+    color: #1976d2;
+    text-decoration: underline;
+}
+</style>
+<div class="delete-container">
+    <h1>Eliminar Detalle de Factura</h1>
+    <p>¿Estás seguro de que deseas eliminar el detalle ID {{ detalle.id_detalle_factura }} de la factura {{ detalle.factura.id_facturacion }}?</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit">Eliminar</button>
+    </form>
+    <a href="{% url 'detalle_facturacion' detalle.factura.pk %}">Cancelar</a>
+</div>
+{% endblock %}

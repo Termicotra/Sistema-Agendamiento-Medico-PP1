@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+.action-btn, .action-btn:visited, .action-btn:active, .action-btn:focus, .action-btn[type="submit"] {
+    font-weight: normal !important;
+}
+</style>
+<div class="table-container">
+    <h1 style="text-align:center;">Lista de Facturaciones</h1>
+    <form method="get" style="margin-bottom:1rem; display:flex; gap:1rem; align-items:center;">
+        <input type="text" name="q" placeholder="Buscar por fecha, estado, método de pago, tipo o turno" value="{{ q|default:'' }}" style="flex:1; padding:0.5rem;">
+        <button type="submit" class="action-btn">Buscar</button>
+        <a href="?" class="action-btn" style="background:#aaa;">Limpiar</a>
+    </form>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+        <a href="{% url 'crear_facturacion' %}" class="create-btn">Crear Nueva Facturación</a>
+        {% if not mostrar_ocultos %}
+            <a href="?mostrar_ocultos=1" class="action-btn" style="background:#b71c1c; color:white;">Mostrar Ocultos</a>
+        {% else %}
+            <a href="?" class="action-btn" style="background:#388e3c; color:white;">Ocultar Pagados/Anulados</a>
+        {% endif %}
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Fecha</th>
+                <th>Monto Total</th>
+                <th>Método de Pago</th>
+                <th>Tipo</th>
+                <th>Estado</th>
+                <th>Turno</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for facturacion in facturaciones %}
+                <tr>
+                    <td>{{ facturacion.id_facturacion }}</td>
+                    <td>{{ facturacion.fecha }}</td>
+                    <td>{{ facturacion.monto_total }}</td>
+                    <td>{{ facturacion.metodo_pago }}</td>
+                    <td>{{ facturacion.tipo_facturacion }}</td>
+                    <td>{{ facturacion.estado }}</td>
+                    <td>{{ facturacion.turno }}</td>
+                    <td class="td-acciones">
+                        <a href="{% url 'detalle_facturacion' facturacion.pk %}" class="action-btn" style="background:#0288d1;">Detalles</a>
+                        <a href="{% url 'editar_facturacion' facturacion.pk %}" class="action-btn">Editar</a>
+                        <a href="{% url 'eliminar_facturacion' facturacion.pk %}" class="action-btn delete">Eliminar</a>
+                        {% if facturacion.estado == 'Pendiente' %}
+                            <form action="{% url 'marcar_facturacion_pagada' facturacion.pk %}" method="post" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="action-btn" style="background:#388e3c; color:white;">Pagado</button>
+                            </form>
+                            <a href="{% url 'marcar_facturacion_anulada' facturacion.pk %}" class="action-btn" style="background:#b71c1c; color:white;">Anular</a>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{%endblock%}
