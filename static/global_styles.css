@@ -24,6 +24,14 @@ th, td {
     text-align: left;
     border-bottom: 1px solid #e0e0e0;
 }
+td {
+    white-space: nowrap;
+}
+td > .action-btn {
+    display: inline-block;
+    margin-bottom: 0;
+    white-space: nowrap;
+}
 tr:hover, tbody tr:hover, td:hover, th:hover {
     background: #f5faff !important;
     /* Elimina cualquier fondo blanco heredado */
@@ -154,6 +162,22 @@ tr:hover, td:hover, th:hover {
 }
 
 /* Ajuste para evitar solapamiento de botones */
-.td-acciones {
-    white-space: nowrap;
+
+.secondary-btn {
+    background: none;
+    color: #1976d2;
+    border: none;
+    border-radius: 0;
+    padding: 0;
+    text-decoration: underline;
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+    display: inline-block;
+    transition: color 0.2s;
+    cursor: pointer;
 }
+.secondary-btn:hover {
+    color: #125ea2;
+    background: none;
+}
+

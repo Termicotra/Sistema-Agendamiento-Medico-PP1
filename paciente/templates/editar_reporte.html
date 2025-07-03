@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="form-container">
+    <h1>Editar Reporte Médico</h1>
+    <form method="post" class="styled-form">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="create-btn">Actualizar</button>
+    </form>
+    <a href="{% url 'listar_reportes' %}" class="secondary-btn">Volver a la lista</a>
+</div>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="table-container">
+    <h1 style="text-align:center;">Historial Clínico</h1>
+    <form method="get" style="margin-bottom:1rem; display:flex; gap:1rem; align-items:center;">
+        <input type="text" name="q" placeholder="Buscar por paciente, profesional o fecha" value="{{ q|default:'' }}" style="flex:1; padding:0.5rem;">
+        <button type="submit" class="action-btn">Buscar</button>
+        <a href="?" class="action-btn" style="background:#aaa;">Limpiar</a>
+    </form>
+    <a href="{% url 'crear_historial' %}" class="create-btn">Crear Nuevo Historial</a>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Fecha</th>
+                <th>Hora</th>
+                <th>Paciente</th>
+                <th>Profesional</th>
+                <th>Razón</th>
+                <th>Descripción</th>
+                <th>Insumo</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for h in historiales %}
+                <tr>
+                    <td>{{ h.id_historial }}</td>
+                    <td>{{ h.fecha }}</td>
+                    <td>{{ h.hora }}</td>
+                    <td>{{ h.paciente }}</td>
+                    <td>{{ h.profesional }}</td>
+                    <td>{{ h.razon }}</td>
+                    <td>{{ h.descripcion }}</td>
+                    <td>{{ h.insumo }}</td>
+                    <td>
+                        <a href="{% url 'editar_historial' h.pk %}" class="action-btn">Editar</a>
+                        <a href="{% url 'eliminar_historial' h.pk %}" class="action-btn delete">Eliminar</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

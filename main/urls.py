@@ -23,6 +23,7 @@ from empleado import views as empleado_views
 from profesional import views as profesional_views
 from turno import views as turno_views
 from django.shortcuts import render
+from paciente import views as paciente_views
 
 urlpatterns = [
     path('', lambda request: render(request, 'menu_principal.html'), name='menu_principal'),
@@ -64,4 +65,13 @@ urlpatterns = [
     path('disponibilidad/crear/', profesional_views.crear_disponibilidad, name='crear_disponibilidad'),
     path('disponibilidad/editar/<int:pk>/', profesional_views.editar_disponibilidad, name='editar_disponibilidad'),
     path('disponibilidad/eliminar/<int:pk>/', profesional_views.eliminar_disponibilidad, name='eliminar_disponibilidad'),
+
+    path('pacientes/historiales/', paciente_views.listar_historiales, name='listar_historiales'),
+    path('pacientes/historiales/crear/', paciente_views.crear_historial, name='crear_historial'),
+    path('pacientes/historiales/<int:pk>/editar/', paciente_views.editar_historial, name='editar_historial'),
+    path('pacientes/historiales/<int:pk>/eliminar/', paciente_views.eliminar_historial, name='eliminar_historial'),
+    path('pacientes/reportes/', paciente_views.listar_reportes, name='listar_reportes'),
+    path('pacientes/reportes/crear/', paciente_views.crear_reporte, name='crear_reporte'),
+    path('pacientes/reportes/<int:pk>/editar/', paciente_views.editar_reporte, name='editar_reporte'),
+    path('pacientes/reportes/<int:pk>/eliminar/', paciente_views.eliminar_reporte, name='eliminar_reporte'),
 ]

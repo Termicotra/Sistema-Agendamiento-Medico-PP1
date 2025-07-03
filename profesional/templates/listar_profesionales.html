@@ -8,9 +8,13 @@
         <button type="submit" class="action-btn">Buscar</button>
         <a href="?" class="action-btn" style="background:#aaa;">Limpiar</a>
     </form>
-    <div style="margin-bottom:2rem; display: flex; align-items: center; gap: 1rem;">
-        <a href="{% url 'crear_profesional' %}" class="create-btn">Crear Nuevo Profesional</a>
-        <a href="{% url 'listar_disponibilidades' %}" class="action-btn" style="margin-left:auto;">Ver Disponibilidad de Profesionales</a>
+    <div style="margin-bottom:2rem; display: flex; gap: 1rem; justify-content: space-between; align-items: center;">
+        <a href="{% url 'crear_profesional' %}" class="create-btn" style="min-width:200px; text-align:center;">Crear Nuevo Profesional</a>
+        <div style="display:flex; gap:1rem;">
+            <a href="{% url 'listar_disponibilidades' %}" class="create-btn" style="min-width:200px; text-align:center;">Disponibilidad Profesionales</a>
+            <a href="{% url 'listar_historiales' %}" class="create-btn" style="min-width:200px; text-align:center; background:#0288d1;">Historial Clínico</a>
+            <a href="{% url 'listar_reportes' %}" class="create-btn" style="min-width:200px; text-align:center; background:#388e3c;">Reportes Médicos</a>
+        </div>
     </div>
     <table>
         <thead>
@@ -42,7 +46,7 @@
                     <td>{{ profesional.registro_profesional }}</td>
                     <td>{{ profesional.otro_contacto }}</td>
                     <td class="td-acciones">
-                        <a href="{% url 'listar_disponibilidades' %}?profesional={{ profesional.pk }}" class="action-btn">Ver</a>
+                        <a href="{% url 'listar_disponibilidades' %}?profesional={{ profesional.pk }}" class="action-btn">Ver Disponibilidad</a>
                         <a href="{% url 'editar_profesional' profesional.pk %}" class="action-btn">Editar</a>
                         <a href="{% url 'eliminar_profesional' profesional.pk %}" class="action-btn delete">Eliminar</a>
                     </td>
