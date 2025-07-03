@@ -5,6 +5,9 @@ class FacturacionForm(forms.ModelForm):
     class Meta:
         model = Facturacion
         fields = ['fecha', 'monto_total', 'metodo_pago', 'tipo_facturacion', 'estado', 'turno']
+        labels = {
+            'fecha': 'Fecha (año-mes-día)',
+        }
 
 class DetalleFacturaForm(forms.ModelForm):
     class Meta:

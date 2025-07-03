@@ -5,3 +5,6 @@ class InsumoForm(forms.ModelForm):
     class Meta:
         model = Insumo
         fields = ['nombre', 'descripcion', 'cantidad', 'fecha_caducidad', 'laboratorio']
+        labels = {
+            'fecha_caducidad': 'Fecha de caducidad (año-mes-día)',
+        }
