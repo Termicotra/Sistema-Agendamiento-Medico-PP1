@@ -13,7 +13,7 @@ class Profesional(models.Model):
     otro_contacto = models.CharField(null=True, blank=True, max_length=254)
 
     def __str__(self):
-        return f"{self.nombre} {self.apellido} {self.especialidad} "
+        return f"{self.nombre} {self.apellido} - {self.especialidad} "
 
 
 class Disponibilidad(models.Model):
@@ -33,4 +33,4 @@ class Disponibilidad(models.Model):
     profesional = models.ForeignKey(Profesional, on_delete=models.CASCADE, null=False, blank=False, default=None)
 
     def __str__(self):
-        return (f"{self.profesional.nombre} {self.profesional.apellido} {self.profesional.especialidad}")
+        return (f"{self.profesional.nombre} {self.profesional.apellido} - {self.profesional.especialidad}")
