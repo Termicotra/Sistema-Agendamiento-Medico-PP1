@@ -51,7 +51,6 @@ class FacturacionViewTest(TestCase):
             'monto_total': 200,
             'metodo_pago': 'Efectivo',
             'tipo_facturacion': 2,
-            'estado': 'Pendiente',
             'turno': self.turno.pk
         }
         response = self.client.post(url, data)
@@ -65,14 +64,12 @@ class FacturacionViewTest(TestCase):
             'monto_total': 150,
             'metodo_pago': 'Efectivo',
             'tipo_facturacion': 1,
-            'estado': 'Pagado',
             'turno': self.turno.pk
         }
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, 302)
         self.facturacion.refresh_from_db()
         self.assertEqual(self.facturacion.monto_total, 150)
-        self.assertEqual(self.facturacion.estado, 'Pagado')
 
     def test_eliminar_facturacion_url(self):
         url = reverse('eliminar_facturacion', args=[self.facturacion.pk])
