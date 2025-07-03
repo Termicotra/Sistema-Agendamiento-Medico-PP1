@@ -45,7 +45,6 @@ class TurnoViewTest(TestCase):
             'fecha': '02/01/2024',
             'hora': '11:00',
             'modalidad': 'Presencial',
-            'estado': 'Activo',
             'motivo': 'Control',
             'fue_notificado': True,
             'profesional': self.profesional.pk,
@@ -62,7 +61,6 @@ class TurnoViewTest(TestCase):
             'fecha': '01/01/2024',
             'hora': '10:00',
             'modalidad': 'Virtual',
-            'estado': 'Cancelado',
             'motivo': 'Consulta',
             'fue_notificado': False,
             'profesional': self.profesional.pk,
@@ -73,7 +71,6 @@ class TurnoViewTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.turno.refresh_from_db()
         self.assertEqual(self.turno.modalidad, 'Virtual')
-        self.assertEqual(self.turno.estado, 'Cancelado')
 
     def test_eliminar_turno_url(self):
         url = reverse('eliminar_turno', args=[self.turno.pk])

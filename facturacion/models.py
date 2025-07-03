@@ -28,8 +28,7 @@ class Facturacion(models.Model):
     turno = models.ForeignKey(Turno, on_delete=models.CASCADE, null=False, blank=False, default=None)
 
     def __str__(self):
-        return (f"{self.fecha} "
-                f"{self.turno.paciente} - {self.estado}")
+        return f"Factura {self.fecha} {self.turno.paciente} - {self.estado}"
     
 class DetalleFactura(models.Model):
     id_detalle_factura = models.AutoField(primary_key=True)
