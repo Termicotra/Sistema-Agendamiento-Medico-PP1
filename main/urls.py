@@ -39,6 +39,8 @@ urlpatterns = [
     path('facturacion/editar/<int:pk>/', facturacion_views.editar_facturacion, name='editar_facturacion'),
     path('facturacion/<int:pk>/', facturacion_views.detalle_facturacion, name='detalle_facturacion'),
     path('facturacion/<int:pk>/eliminar-detalle/<int:detalle_pk>/', facturacion_views.eliminar_detalle_factura, name='eliminar_detalle_factura'),
+    path('facturacion/<int:pk>/pagada/', facturacion_views.marcar_facturacion_pagada, name='marcar_facturacion_pagada'),
+    path('facturacion/<int:pk>/anulada/', facturacion_views.marcar_facturacion_anulada, name='marcar_facturacion_anulada'),
 
     path('inventario/crear/', inventario_views.crear_insumo, name='crear_insumo'),
     path('inventario/', inventario_views.listar_insumos, name='listar_insumos'),
@@ -60,6 +62,8 @@ urlpatterns = [
     path('turno/', turno_views.listar_turnos, name='listar_turnos'),
     path('turno/eliminar/<int:pk>/', turno_views.eliminar_turno, name='eliminar_turno'),
     path('turno/editar/<int:pk>/', turno_views.editar_turno, name='editar_turno'),
+    path('turno/<int:pk>/resuelto/', turno_views.marcar_turno_resuelto, name='marcar_turno_resuelto'),
+    path('turno/<int:pk>/cancelado/', turno_views.marcar_turno_cancelado, name='marcar_turno_cancelado'),
 
     path('disponibilidad/', profesional_views.listar_disponibilidades, name='listar_disponibilidades'),
     path('disponibilidad/crear/', profesional_views.crear_disponibilidad, name='crear_disponibilidad'),

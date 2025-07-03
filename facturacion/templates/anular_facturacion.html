@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="delete-container">
+    <h1>Anular Facturación</h1>
+    <p>¿Estás seguro de que deseas anular la facturación ID {{ facturacion.id_facturacion }}?</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit">Anular</button>
+    </form>
+    <a href="{% url 'listar_facturaciones' %}">Cancelar</a>
+</div>
+{%endblock%}

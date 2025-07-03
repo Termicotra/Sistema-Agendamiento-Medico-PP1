@@ -15,7 +15,11 @@ def crear_facturacion(request):
 
 def listar_facturaciones(request):
     query = request.GET.get('q', '')
-    facturaciones = Facturacion.objects.all()
+    mostrar_ocultos = request.GET.get('mostrar_ocultos', '') == '1'
+    if mostrar_ocultos:
+        facturaciones = Facturacion.objects.filter(estado__in=['Pagado', 'Anulado'])
+    else:
+        facturaciones = Facturacion.objects.filter(estado='Pendiente')
     if query:
         facturaciones = facturaciones.filter(
             Q(fecha__icontains=query) |
@@ -24,7 +28,7 @@ def listar_facturaciones(request):
             Q(turno__id_turno__icontains=query) |
             Q(tipo_facturacion__icontains=query)
         )
-    return render(request, 'listar_facturaciones.html', {'facturaciones': facturaciones, 'q': query})
+    return render(request, 'listar_facturaciones.html', {'facturaciones': facturaciones, 'q': query, 'mostrar_ocultos': mostrar_ocultos})
 
 def eliminar_facturacion(request, pk):
     facturacion = Facturacion.objects.get(pk=pk)
@@ -69,3 +73,25 @@ def eliminar_detalle_factura(request, pk, detalle_pk):
         detalle.delete()
         return redirect('detalle_facturacion', pk=facturacion_pk)
     return render(request, 'eliminar_detalle_factura.html', {'detalle': detalle})
+
+def marcar_facturacion_pagada(request, pk):
+    facturacion = Facturacion.objects.get(pk=pk)
+    if request.method == 'POST':
+        facturacion.estado = 'Pagado'
+        facturacion.save()
+        return redirect('listar_facturaciones')
+    return redirect('listar_facturaciones')
+
+def marcar_facturacion_anulada(request, pk):
+    facturacion = Facturacion.objects.get(pk=pk)
+    if request.method == 'POST':
+        # Si el turno asociado está cancelado, anular la facturación automáticamente
+        if facturacion.turno and facturacion.turno.estado == 'Cancelado':
+            facturacion.estado = 'Anulado'
+            facturacion.save()
+            return redirect('listar_facturaciones')
+        facturacion.estado = 'Anulado'
+        facturacion.save()
+        return redirect('listar_facturaciones')
+    # Si no es POST, mostrar confirmación
+    return render(request, 'anular_facturacion.html', {'facturacion': facturacion})

@@ -1,6 +1,11 @@
 {% extends "base.html" %}
 
 {% block content %}
+<style>
+.action-btn, .action-btn:visited, .action-btn:active, .action-btn:focus, .action-btn[type="submit"] {
+    font-weight: normal !important;
+}
+</style>
 <div class="table-container">
     <h1 style="text-align:center;">Lista de Facturaciones</h1>
     <form method="get" style="margin-bottom:1rem; display:flex; gap:1rem; align-items:center;">
@@ -8,7 +13,14 @@
         <button type="submit" class="action-btn">Buscar</button>
         <a href="?" class="action-btn" style="background:#aaa;">Limpiar</a>
     </form>
-    <a href="{% url 'crear_facturacion' %}" class="create-btn">Crear Nueva Facturación</a>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+        <a href="{% url 'crear_facturacion' %}" class="create-btn">Crear Nueva Facturación</a>
+        {% if not mostrar_ocultos %}
+            <a href="?mostrar_ocultos=1" class="action-btn" style="background:#b71c1c; color:white;">Mostrar Ocultos</a>
+        {% else %}
+            <a href="?" class="action-btn" style="background:#388e3c; color:white;">Ocultar Pagados/Anulados</a>
+        {% endif %}
+    </div>
     <table>
         <thead>
             <tr>
@@ -36,6 +48,13 @@
                         <a href="{% url 'detalle_facturacion' facturacion.pk %}" class="action-btn" style="background:#0288d1;">Detalles</a>
                         <a href="{% url 'editar_facturacion' facturacion.pk %}" class="action-btn">Editar</a>
                         <a href="{% url 'eliminar_facturacion' facturacion.pk %}" class="action-btn delete">Eliminar</a>
+                        {% if facturacion.estado == 'Pendiente' %}
+                            <form action="{% url 'marcar_facturacion_pagada' facturacion.pk %}" method="post" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="action-btn" style="background:#388e3c; color:white;">Pagado</button>
+                            </form>
+                            <a href="{% url 'marcar_facturacion_anulada' facturacion.pk %}" class="action-btn" style="background:#b71c1c; color:white;">Anular</a>
+                        {% endif %}
                     </td>
                 </tr>
             {% endfor %}

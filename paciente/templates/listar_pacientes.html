@@ -35,7 +35,7 @@
                     <td class="td-acciones">
                         <a href="{% url 'editar_paciente' paciente.pk %}" class="action-btn">Editar</a>
                         <a href="{% url 'eliminar_paciente' paciente.pk %}" class="action-btn delete">Eliminar</a>
-                        <a href="{% url 'listar_historiales' %}?paciente={{ paciente.pk }}" class="action-btn" style="background:#0288d1;">Ver Historial</a>
+                        <a href="{% url 'listar_historiales' %}?q={{ paciente.nombre }}+{{ paciente.apellido }}+{{ paciente.ci }}" class="action-btn" style="background:#0288d1;">Ver Historial</a>
                     </td>
                 </tr>
             {% endfor %}

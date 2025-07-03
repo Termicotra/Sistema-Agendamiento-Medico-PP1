@@ -1,6 +1,11 @@
 {% extends "base.html" %}
 
 {% block content %}
+<style>
+.action-btn, .action-btn:visited, .action-btn:active, .action-btn:focus, .action-btn[type="submit"] {
+    font-weight: normal !important;
+}
+</style>
 <div class="table-container">
     <h1 style="text-align:center;">Lista de Turnos</h1>
     <form method="get" style="margin-bottom:1rem; display:flex; gap:1rem; align-items:center;">
@@ -8,7 +13,14 @@
         <button type="submit" class="action-btn">Buscar</button>
         <a href="?" class="action-btn" style="background:#aaa;">Limpiar</a>
     </form>
-    <a href="{% url 'crear_turno' %}" class="create-btn">Crear Nuevo Turno</a>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+        <a href="{% url 'crear_turno' %}" class="create-btn">Crear Nuevo Turno</a>
+        {% if not mostrar_ocultos %}
+            <a href="?mostrar_ocultos=1" class="action-btn" style="background:#b71c1c; color:white;">Mostrar Ocultos</a>
+        {% else %}
+            <a href="?" class="action-btn" style="background:#388e3c; color:white;">Ocultar Cancelados/No activos</a>
+        {% endif %}
+    </div>
     <table>
         <thead>
             <tr>
@@ -39,6 +51,13 @@
                     <td class="td-acciones">
                         <a href="{% url 'editar_turno' turno.pk %}" class="action-btn">Editar</a>
                         <a href="{% url 'eliminar_turno' turno.pk %}" class="action-btn delete">Eliminar</a>
+                        {% if turno.estado != 'No activo' and turno.estado != 'Cancelado' %}
+                            <form action="{% url 'marcar_turno_resuelto' turno.pk %}" method="post" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="action-btn" style="background:#388e3c; color:white;">Resuelto</button>
+                            </form>
+                            <a href="{% url 'marcar_turno_cancelado' turno.pk %}" class="action-btn" style="background:#b71c1c; color:white;">Cancelar</a>
+                        {% endif %}
                     </td>
                 </tr>
             {% endfor %}
