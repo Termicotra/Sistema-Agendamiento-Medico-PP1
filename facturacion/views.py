@@ -66,7 +66,7 @@ def detalle_facturacion(request, pk):
         'detalle_form': detalle_form
     })
 
-def eliminar_detalle_factura(request, pk, detalle_pk):
+def eliminar_detalle_factura(request, detalle_pk):
     detalle = DetalleFactura.objects.get(pk=detalle_pk)
     facturacion_pk = detalle.factura.pk
     if request.method == 'POST':

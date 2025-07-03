@@ -5,6 +5,9 @@ from turno.models import Turno
 from turno.forms import TurnoForm
 from facturacion.models import Facturacion
 
+RESUELTO = 'No activo'
+CANCELADO = 'Cancelado'
+
 def crear_turno(request):
     if request.method == 'POST':
         form = TurnoForm(request.POST)
@@ -19,9 +22,9 @@ def listar_turnos(request):
     query = request.GET.get('q', '')
     mostrar_ocultos = request.GET.get('mostrar_ocultos', '') == '1'
     if mostrar_ocultos:
-        turnos = Turno.objects.filter(estado__in=['No activo', 'Cancelado'])
+        turnos = Turno.objects.filter(estado__in=[RESUELTO, CANCELADO])
     else:
-        turnos = Turno.objects.exclude(estado__in=['No activo', 'Cancelado'])
+        turnos = Turno.objects.exclude(estado__in=[RESUELTO, CANCELADO])
     if query:
         turnos = turnos.filter(
             Q(fecha__icontains=query) |
@@ -56,7 +59,7 @@ def editar_turno(request, pk):
 def marcar_turno_resuelto(request, pk):
     turno = get_object_or_404(Turno, pk=pk)
     if request.method == 'POST':
-        turno.estado = 'No activo'
+        turno.estado = RESUELTO
         turno.save()
     return redirect('listar_turnos')
 

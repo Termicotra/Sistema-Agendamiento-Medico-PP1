@@ -38,7 +38,7 @@ urlpatterns = [
     path('facturacion/eliminar/<int:pk>/', facturacion_views.eliminar_facturacion, name='eliminar_facturacion'),
     path('facturacion/editar/<int:pk>/', facturacion_views.editar_facturacion, name='editar_facturacion'),
     path('facturacion/<int:pk>/', facturacion_views.detalle_facturacion, name='detalle_facturacion'),
-    path('facturacion/<int:pk>/eliminar-detalle/<int:detalle_pk>/', facturacion_views.eliminar_detalle_factura, name='eliminar_detalle_factura'),
+    path('facturacion/eliminar-detalle/<int:detalle_pk>/', facturacion_views.eliminar_detalle_factura, name='eliminar_detalle_factura'),
     path('facturacion/<int:pk>/pagada/', facturacion_views.marcar_facturacion_pagada, name='marcar_facturacion_pagada'),
     path('facturacion/<int:pk>/anulada/', facturacion_views.marcar_facturacion_anulada, name='marcar_facturacion_anulada'),
 

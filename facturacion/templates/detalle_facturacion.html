@@ -91,7 +91,7 @@
             <td>{{ detalle.descripción }}</td>
             <td>{{ detalle.descuento }}</td>
             <td>
-                <a href="{% url 'eliminar_detalle_factura' facturacion.pk detalle.pk %}" class="action-btn">Eliminar</a>
+                <a href="{% url 'eliminar_detalle_factura' detalle.pk %}" class="action-btn">Eliminar</a>
             </td>
         </tr>
         {% endfor %}
