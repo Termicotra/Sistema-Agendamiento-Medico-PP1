@@ -1,44 +1,49 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
-{% block nav %}{% endblock %}
+{% block title %}Dashboard - Sistema de Agendamiento{% endblock %}
 
 {% block content %}
-<style>
-.menu-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 70vh;
-}
-.menu-buttons {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    align-items: center;
-}
-.menu-buttons a {
-    padding: 1rem 2.5rem;
-    font-size: 1.2rem;
-    background: #1976d2;
-    color: white;
-    border-radius: 8px;
-    text-decoration: none;
-    transition: background 0.2s;
-}
-.menu-buttons a:hover {
-    background: #1565c0;
-}
-</style>
-<div class="menu-container">
-    <h1>Menú Principal</h1>
-    <div class="menu-buttons">
-        <a href="/paciente/">Paciente</a>
-        <a href="/facturacion/">Facturación</a>
-        <a href="/inventario/">Inventario</a>
-        <a href="/empleado/">Empleado</a>
-        <a href="/profesional/">Profesional</a>
-        <a href="/turno/">Turno</a>
+<h1 class="mb-4 text-center">Dashboard</h1>
+<div class="row g-4">
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-people fs-1 text-primary"></i>
+                <h5 class="card-title mt-2">Pacientes</h5>
+                <p class="text-muted">Gestiona los pacientes registrados.</p>
+                <a href="{% url 'listar_pacientes' %}" class="btn btn-primary">Ver Pacientes</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-calendar-check fs-1 text-primary"></i>
+                <h5 class="card-title mt-2">Turnos</h5>
+                <p class="text-muted">Gestiona los turnos agendados.</p>
+                <a href="{% url 'listar_turnos' %}" class="btn btn-primary">Ver Turnos</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-person-badge fs-1 text-primary"></i>
+                <h5 class="card-title mt-2">Profesionales</h5>
+                <p class="text-muted">Gestiona los profesionales médicos.</p>
+                <a href="{% url 'listar_profesionales' %}" class="btn btn-primary">Ver Profesionales</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-receipt fs-1 text-primary"></i>
+                <h5 class="card-title mt-2">Facturaciones</h5>
+                <p class="text-muted">Gestiona las facturaciones.</p>
+                <a href="{% url 'listar_facturaciones' %}" class="btn btn-primary">Ver Facturaciones</a>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}
