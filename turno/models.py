@@ -33,3 +33,5 @@ class Turno(models.Model):
     def __str__(self):
         return (f"{self.paciente.nombre} {self.paciente.apellido} {self.paciente.ci} "
                 f"{self.profesional.especialidad} {self.fecha}")
+    class Meta:
+        db_table = 'turno'

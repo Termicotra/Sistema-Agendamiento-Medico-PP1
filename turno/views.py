@@ -3,7 +3,6 @@ from django.db.models import Q
 from django.views.decorators.http import require_POST
 from turno.models import Turno
 from turno.forms import TurnoForm
-from facturacion.models import Facturacion
 
 RESUELTO = 'No activo'
 CANCELADO = 'Cancelado'
@@ -68,11 +67,6 @@ def marcar_turno_cancelado(request, pk):
     if request.method == 'POST':
         turno.estado = 'Cancelado'
         turno.save()
-        # Anular automáticamente la facturación asociada si existe y está pendiente
-        facturaciones = Facturacion.objects.filter(turno=turno, estado=Facturacion.EstadoFacturacionChoices.PENDIENTE)
-        for facturacion in facturaciones:
-            facturacion.estado = Facturacion.EstadoFacturacionChoices.ANULADO
-            facturacion.save()
         return redirect('listar_turnos')
     # Si no es POST, mostrar confirmación
     return render(request, 'cancelar_turno.html', {'turno': turno})

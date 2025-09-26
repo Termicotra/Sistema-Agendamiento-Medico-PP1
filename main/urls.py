@@ -17,8 +17,6 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from paciente import views
-from facturacion import views as facturacion_views
-from inventario import views as inventario_views
 from empleado import views as empleado_views
 from profesional import views as profesional_views
 from turno import views as turno_views
@@ -53,20 +51,6 @@ urlpatterns = [
     path('paciente/', views.listar_pacientes, name='listar_pacientes'),
     path('paciente/eliminar/<int:pk>/', views.eliminar_paciente, name='eliminar_paciente'),
     path('paciente/editar/<int:pk>/', views.editar_paciente, name='editar_paciente'),
-
-    path('facturacion/crear/', facturacion_views.crear_facturacion, name='crear_facturacion'),
-    path('facturacion/', facturacion_views.listar_facturaciones, name='listar_facturaciones'),
-    path('facturacion/eliminar/<int:pk>/', facturacion_views.eliminar_facturacion, name='eliminar_facturacion'),
-    path('facturacion/editar/<int:pk>/', facturacion_views.editar_facturacion, name='editar_facturacion'),
-    path('facturacion/<int:pk>/', facturacion_views.detalle_facturacion, name='detalle_facturacion'),
-    path('facturacion/eliminar-detalle/<int:detalle_pk>/', facturacion_views.eliminar_detalle_factura, name='eliminar_detalle_factura'),
-    path('facturacion/<int:pk>/pagada/', facturacion_views.marcar_facturacion_pagada, name='marcar_facturacion_pagada'),
-    path('facturacion/<int:pk>/anulada/', facturacion_views.marcar_facturacion_anulada, name='marcar_facturacion_anulada'),
-
-    path('inventario/crear/', inventario_views.crear_insumo, name='crear_insumo'),
-    path('inventario/', inventario_views.listar_insumos, name='listar_insumos'),
-    path('inventario/eliminar/<int:pk>/', inventario_views.eliminar_insumo, name='eliminar_insumo'),
-    path('inventario/editar/<int:pk>/', inventario_views.editar_insumo, name='editar_insumo'),
 
     path('empleado/crear/', empleado_views.crear_empleado, name='crear_empleado'),
     path('empleado/', empleado_views.listar_empleados, name='listar_empleados'),

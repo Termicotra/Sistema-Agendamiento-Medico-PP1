@@ -6,7 +6,7 @@ class Profesional(models.Model):
     nombre = models.CharField(null=False, blank=False, max_length=128)
     apellido = models.CharField(null=False, blank=False, max_length=128)
     fecha_nacimiento = models.DateField(null=False, blank=False)
-    direccion = models.CharField(blank=True, max_length=256)
+    direccion = models.CharField(null=True, blank=True, max_length=256)
     telefono = models.CharField(null=False, blank=False, max_length=128)
     especialidad = models.CharField(null=False, blank=False, max_length=256)
     registro_profesional = models.CharField(null=False, blank=False, max_length=256)
@@ -14,6 +14,8 @@ class Profesional(models.Model):
 
     def __str__(self):
         return f"{self.nombre} {self.apellido} - {self.especialidad} "
+    class Meta:
+        db_table = 'profesional'
 
 
 class Disponibilidad(models.Model):
@@ -34,3 +36,5 @@ class Disponibilidad(models.Model):
 
     def __str__(self):
         return (f"{self.profesional.nombre} {self.profesional.apellido} - {self.profesional.especialidad}")
+    class Meta:
+        db_table = 'disponibilidad'
