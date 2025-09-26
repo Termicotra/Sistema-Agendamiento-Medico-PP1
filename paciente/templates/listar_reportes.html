@@ -1,35 +1,42 @@
 {% extends "base.html" %}
+
 {% block content %}
-<div class="table-container">
-    <h1 style="text-align:center;">Reportes Médicos</h1>
-    <form method="get" style="margin-bottom:1rem; display:flex; gap:1rem; align-items:center;">
-        <input type="text" name="q" placeholder="Buscar por paciente, profesional o fecha" value="{{ q|default:'' }}" style="flex:1; padding:0.5rem;">
-        <button type="submit" class="action-btn">Buscar</button>
-        <a href="?" class="action-btn" style="background:#aaa;">Limpiar</a>
+<div class="table-responsive">
+    <h1 class="text-center">Lista de Reportes Médicos</h1>
+    <form method="get" class="row g-2 mb-3">
+        <div class="col">
+            <input type="text" name="q" class="form-control" placeholder="Buscar por paciente, profesional o fecha" value="{{ q|default:'' }}">
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary">Buscar</button>
+        </div>
+        <div class="col-auto">
+            <a href="?" class="btn btn-secondary">Limpiar</a>
+        </div>
     </form>
-    <a href="{% url 'crear_reporte' %}" class="create-btn">Crear Nuevo Reporte</a>
-    <table>
+    <a href="{% url 'crear_reporte' %}" class="btn btn-success mb-3">Crear Nuevo Reporte</a>
+    <table class="table table-striped">
         <thead>
             <tr>
                 <th>ID</th>
-                <th>Fecha</th>
                 <th>Paciente</th>
                 <th>Profesional</th>
+                <th>Fecha</th>
                 <th>Descripción</th>
                 <th>Acciones</th>
             </tr>
         </thead>
         <tbody>
-            {% for r in reportes %}
+            {% for reporte in reportes %}
                 <tr>
-                    <td>{{ r.id_reporte }}</td>
-                    <td>{{ r.fecha }}</td>
-                    <td>{{ r.paciente }}</td>
-                    <td>{{ r.profesional }}</td>
-                    <td>{{ r.descripcion }}</td>
+                    <td>{{ reporte.id_reporte }}</td>
+                    <td>{{ reporte.paciente }}</td>
+                    <td>{{ reporte.profesional }}</td>
+                    <td>{{ reporte.fecha }}</td>
+                    <td>{{ reporte.descripcion }}</td>
                     <td>
-                        <a href="{% url 'editar_reporte' r.pk %}" class="action-btn">Editar</a>
-                        <a href="{% url 'eliminar_reporte' r.pk %}" class="action-btn delete">Eliminar</a>
+                        <a href="{% url 'editar_reporte' reporte.pk %}" class="btn btn-warning btn-sm">Editar</a>
+                        <a href="{% url 'eliminar_reporte' reporte.pk %}" class="btn btn-danger btn-sm">Eliminar</a>
                     </td>
                 </tr>
             {% endfor %}

@@ -1,14 +1,21 @@
 {% extends "base.html" %}
+
 {% block content %}
-<div class="table-container">
-    <h1 style="text-align:center;">Historial Clínico</h1>
-    <form method="get" style="margin-bottom:1rem; display:flex; gap:1rem; align-items:center;">
-        <input type="text" name="q" placeholder="Buscar por paciente, profesional o fecha" value="{{ q|default:'' }}" style="flex:1; padding:0.5rem;">
-        <button type="submit" class="action-btn">Buscar</button>
-        <a href="?" class="action-btn" style="background:#aaa;">Limpiar</a>
+<div class="table-responsive">
+    <h1 class="text-center">Historial Clínico</h1>
+    <form method="get" class="row g-2 mb-3">
+        <div class="col">
+            <input type="text" name="q" class="form-control" placeholder="Buscar por paciente, profesional o fecha" value="{{ q|default:'' }}">
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary">Buscar</button>
+        </div>
+        <div class="col-auto">
+            <a href="?" class="btn btn-secondary">Limpiar</a>
+        </div>
     </form>
-    <a href="{% url 'crear_historial' %}" class="create-btn">Crear Nuevo Historial</a>
-    <table>
+    <a href="{% url 'crear_historial' %}" class="btn btn-success mb-3">Crear Nuevo Historial</a>
+    <table class="table table-striped">
         <thead>
             <tr>
                 <th>ID</th>
@@ -18,24 +25,22 @@
                 <th>Profesional</th>
                 <th>Razón</th>
                 <th>Descripción</th>
-                <th>Insumo</th>
                 <th>Acciones</th>
             </tr>
         </thead>
         <tbody>
-            {% for h in historiales %}
+            {% for historial in historiales %}
                 <tr>
-                    <td>{{ h.id_historial }}</td>
-                    <td>{{ h.fecha }}</td>
-                    <td>{{ h.hora }}</td>
-                    <td>{{ h.paciente }}</td>
-                    <td>{{ h.profesional }}</td>
-                    <td>{{ h.razon }}</td>
-                    <td>{{ h.descripcion }}</td>
-                    <td>{{ h.insumo }}</td>
+                    <td>{{ historial.id_historial }}</td>
+                    <td>{{ historial.fecha }}</td>
+                    <td>{{ historial.hora }}</td>
+                    <td>{{ historial.paciente }}</td>
+                    <td>{{ historial.profesional }}</td>
+                    <td>{{ historial.razon }}</td>
+                    <td>{{ historial.descripcion }}</td>
                     <td>
-                        <a href="{% url 'editar_historial' h.pk %}" class="action-btn">Editar</a>
-                        <a href="{% url 'eliminar_historial' h.pk %}" class="action-btn delete">Eliminar</a>
+                        <a href="{% url 'editar_historial' historial.pk %}" class="btn btn-warning btn-sm">Editar</a>
+                        <a href="{% url 'eliminar_historial' historial.pk %}" class="btn btn-danger btn-sm">Eliminar</a>
                     </td>
                 </tr>
             {% endfor %}

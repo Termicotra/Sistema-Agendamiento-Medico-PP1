@@ -8,12 +8,14 @@ class Paciente(models.Model):
     nombre = models.CharField(null=False, blank=False, max_length=128)
     apellido = models.CharField(null=False, blank=False, max_length=128)
     fecha_nacimiento = models.DateField(null=False, blank=False)  
-    direccion = models.CharField(blank=True, max_length=128)
+    direccion = models.CharField(null=True, blank=True, max_length=128)
     telefono = models.CharField(null=False, blank=False, max_length=128)
-    otro_contacto = models.CharField(blank=True, max_length=256)
+    otro_contacto = models.CharField(null=True, blank=True, max_length=256)
 
     def __str__(self):
         return f"{self.nombre} {self.apellido} {self.ci}"
+    class Meta:
+        db_table = 'paciente'
     
 class HistorialClinico(models.Model):
     id_historial = models.AutoField(primary_key=True)
