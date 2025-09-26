@@ -39,3 +39,6 @@ class DetalleFactura(models.Model):
 
     def __str__(self):
         return f"Detalle {self.id_detalle_factura} de la Factura {self.factura.id_facturacion}"
+
+class Meta:
+    db_table = 'facturacion'

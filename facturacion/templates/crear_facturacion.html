@@ -1,12 +1,16 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="form-container">
-    <h1>Crear Facturación</h1>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Guardar</button>
-    </form>
+<div class="container mt-5">
+    <div class="card mx-auto" style="max-width: 500px;">
+        <div class="card-body">
+            <h1 class="h4 text-center mb-4">Crear Facturación</h1>
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-success">Guardar</button>
+            </form>
+        </div>
+    </div>
 </div>
-{%endblock%}
+{% endblock %}

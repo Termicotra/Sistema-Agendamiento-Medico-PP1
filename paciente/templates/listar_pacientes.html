@@ -1,29 +1,39 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
 {% block content %}
-<div class="table-container">
-    <h1 style="text-align:center;">Lista de Pacientes</h1>
-    <form method="get" style="margin-bottom:1rem; display:flex; gap:1rem; align-items:center;">
-        <input type="text" name="q" placeholder="Buscar por nombre, apellido o CI" value="{{ q|default:'' }}" style="flex:1; padding:0.5rem;">
-        <button type="submit" class="action-btn">Buscar</button>
-        <a href="?" class="action-btn" style="background:#aaa;">Limpiar</a>
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="mb-0">Pacientes</h1>
+        <a href="{% url 'crear_paciente' %}" class="btn btn-primary">
+            <i class="bi bi-person-plus"></i> Agregar Paciente
+        </a>
+    </div>
+
+    <!-- Barra de búsqueda -->
+    <form method="get" class="input-group mb-4 w-50">
+        <input type="text" name="q" placeholder="Buscar paciente" value="{{ query|default:'' }}" class="form-control">
+        <button type="submit" class="btn btn-primary">
+            <i class="bi bi-search"></i> Buscar
+        </button>
     </form>
-    <a href="{% url 'crear_paciente' %}" class="create-btn">Crear Nuevo Paciente</a>
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>CI</th>
-                <th>Nombre</th>
-                <th>Apellido</th>
-                <th>Fecha de Nacimiento</th>
-                <th>Teléfono</th>
-                <th>Dirección</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for paciente in pacientes %}
+
+    <!-- Tabla de pacientes -->
+    <div class="table-responsive">
+        <table class="table table-hover table-bordered align-middle">
+            <thead class="table-primary">
+                <tr>
+                    <th>ID</th>
+                    <th>Cédula</th>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>Fecha de Nacimiento</th>
+                    <th>Teléfono</th>
+                    <th>Dirección</th>
+                    <th class="text-center">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for paciente in pacientes %}
                 <tr>
                     <td>{{ paciente.id_paciente }}</td>
                     <td>{{ paciente.ci }}</td>
@@ -32,14 +42,24 @@
                     <td>{{ paciente.fecha_nacimiento }}</td>
                     <td>{{ paciente.telefono }}</td>
                     <td>{{ paciente.direccion }}</td>
-                    <td class="td-acciones">
-                        <a href="{% url 'editar_paciente' paciente.pk %}" class="action-btn">Editar</a>
-                        <a href="{% url 'eliminar_paciente' paciente.pk %}" class="action-btn delete">Eliminar</a>
-                        <a href="{% url 'listar_historiales' %}?q={{ paciente.nombre }}+{{ paciente.apellido }}+{{ paciente.ci }}" class="action-btn" style="background:#0288d1;">Ver Historial</a>
+                    <td class="text-center">
+                        <div class="btn-group" role="group">
+                            <a href="{% url 'editar_paciente' paciente.id_paciente %}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a href="{% url 'eliminar_paciente' paciente.id_paciente %}" class="btn btn-sm btn-outline-danger">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </div>
                     </td>
                 </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="text-center text-muted">No se encontraron pacientes</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
-{%endblock%}
+{% endblock %}

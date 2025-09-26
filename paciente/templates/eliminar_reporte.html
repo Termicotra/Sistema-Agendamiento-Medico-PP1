@@ -1,12 +1,17 @@
 {% extends "base.html" %}
+
 {% block content %}
-<div class="form-container">
-    <h1>Eliminar Reporte Médico</h1>
-    <p>¿Estás seguro de que deseas eliminar este reporte?</p>
-    <form method="post" class="styled-form">
-        {% csrf_token %}
-        <button type="submit" class="action-btn delete">Eliminar</button>
-    </form>
-    <a href="{% url 'listar_reportes' %}" class="secondary-btn">Volver a la lista</a>
+<div class="container mt-5">
+    <div class="card mx-auto" style="max-width: 400px;">
+        <div class="card-body text-center">
+            <h1 class="h4 mb-3">Eliminar Reporte Médico</h1>
+            <p>¿Estás seguro de que deseas eliminar este reporte?</p>
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Eliminar</button>
+            </form>
+            <a href="{% url 'listar_reportes' %}" class="btn btn-link mt-3">Volver a la lista</a>
+        </div>
+    </div>
 </div>
 {% endblock %}

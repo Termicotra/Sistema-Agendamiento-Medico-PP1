@@ -12,7 +12,7 @@ class Anuncio(models.Model):
     fecha = models.DateField(null=False, blank=False)
     hora = models.TimeField(null=True, blank=True)
     titulo = models.CharField(null=False, blank=False, max_length=256)
-    descripcion = models.TextField(blank=True, max_length=512)
+    descripcion = models.TextField(null=True, blank=True, max_length=512)
     estado = models.CharField(
         choices=EstadoAnuncioChoices.choices,
         default=EstadoAnuncioChoices.ACTIVO
@@ -21,6 +21,8 @@ class Anuncio(models.Model):
 
     def __str__(self):
         return f"Anuncio: {self.titulo} el {self.fecha} - Estado: {self.estado}"
+    class Meta:
+        db_table = 'anuncio'
     
 class Notificacion(models.Model):
     class EstadoNotificacionChoices(models.TextChoices):
@@ -41,3 +43,5 @@ class Notificacion(models.Model):
         return (f"Notificación del Paciente {self.paciente.nombre} {self.paciente.apellido} "
                 f"con CI: {self.paciente.ci} el {self.fecha} "
                 f"con Turno {self.turno.id_turno} - Estado: {self.estado}")
+    class Meta:
+        db_table = 'notificacion'

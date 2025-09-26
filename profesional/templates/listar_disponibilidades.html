@@ -1,15 +1,15 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="table-container">
-    <h1>Disponibilidad de Profesionales</h1>
+<div class="table-responsive">
+    <h1 class="text-center">Disponibilidad de Profesionales</h1>
     {% if profesional_filtrado %}
         <div style="margin-bottom:1rem;">
             <strong>Filtrando por profesional:</strong> {{ profesional_filtrado.nombre }} {{ profesional_filtrado.apellido }}
-            <a href="{% url 'listar_disponibilidades' %}" class="action-btn" style="margin-left:1rem;">Quitar filtro</a>
+            <a href="{% url 'listar_disponibilidades' %}" class="btn btn-secondary btn-sm" style="margin-left:1rem;">Quitar filtro</a>
         </div>
     {% endif %}
-    <a href="{% url 'crear_disponibilidad' %}" class="create-btn">Agregar Disponibilidad</a>
-    <table>
+    <a href="{% url 'crear_disponibilidad' %}" class="btn btn-success mb-3">Agregar Disponibilidad</a>
+    <table class="table table-striped">
         <thead>
             <tr>
                 <th>Profesional</th>
@@ -28,9 +28,9 @@
                 <td>{{ disp.hora_inicio }}</td>
                 <td>{{ disp.hora_fin }}</td>
                 <td>{{ disp.esta_disponible|yesno:"Sí,No" }}</td>
-                <td class="td-acciones">
-                    <a href="{% url 'editar_disponibilidad' disp.pk %}" class="action-btn">Editar</a>
-                    <a href="{% url 'eliminar_disponibilidad' disp.pk %}" class="action-btn delete">Eliminar</a>
+                <td>
+                    <a href="{% url 'editar_disponibilidad' disp.pk %}" class="btn btn-warning btn-sm">Editar</a>
+                    <a href="{% url 'eliminar_disponibilidad' disp.pk %}" class="btn btn-danger btn-sm">Eliminar</a>
                 </td>
             </tr>
             {% empty %}
@@ -38,6 +38,6 @@
             {% endfor %}
         </tbody>
     </table>
-    <a href="{% url 'listar_profesionales' %}" class="action-btn">Volver a Profesionales</a>
+    <a href="{% url 'listar_profesionales' %}" class="btn btn-secondary btn-sm">Volver a Profesionales</a>
 </div>
 {% endblock %}

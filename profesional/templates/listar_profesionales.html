@@ -1,22 +1,28 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="table-container">
-    <h1 style="text-align:center;">Lista de Profesionales</h1>
-    <form method="get" style="margin-bottom:1rem; display:flex; gap:1rem; align-items:center;">
-        <input type="text" name="q" placeholder="Buscar por nombre, apellido, especialidad o CI" value="{{ q|default:'' }}" style="flex:1; padding:0.5rem;">
-        <button type="submit" class="action-btn">Buscar</button>
-        <a href="?" class="action-btn" style="background:#aaa;">Limpiar</a>
+<div class="table-responsive">
+    <h1 class="text-center">Lista de Profesionales</h1>
+    <form method="get" class="row g-2 mb-3">
+        <div class="col">
+            <input type="text" name="q" class="form-control" placeholder="Buscar por nombre, apellido, especialidad o CI" value="{{ q|default:'' }}">
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary">Buscar</button>
+        </div>
+        <div class="col-auto">
+            <a href="?" class="btn btn-secondary">Limpiar</a>
+        </div>
     </form>
-    <div style="margin-bottom:2rem; display: flex; gap: 1rem; justify-content: space-between; align-items: center;">
-        <a href="{% url 'crear_profesional' %}" class="create-btn" style="min-width:200px; text-align:center;">Crear Nuevo Profesional</a>
-        <div style="display:flex; gap:1rem;">
-            <a href="{% url 'listar_disponibilidades' %}" class="create-btn" style="min-width:200px; text-align:center;">Disponibilidad Profesionales</a>
-            <a href="{% url 'listar_historiales' %}" class="create-btn" style="min-width:200px; text-align:center; background:#0288d1;">Historial Clínico</a>
-            <a href="{% url 'listar_reportes' %}" class="create-btn" style="min-width:200px; text-align:center; background:#388e3c;">Reportes Médicos</a>
+    <div class="mb-3 d-flex justify-content-between">
+        <a href="{% url 'crear_profesional' %}" class="btn btn-success">Crear Nuevo Profesional</a>
+        <div class="d-flex gap-2">
+            <a href="{% url 'listar_disponibilidades' %}" class="btn btn-info">Disponibilidad Profesionales</a>
+            <a href="{% url 'listar_historiales' %}" class="btn btn-primary">Historial Clínico</a>
+            <a href="{% url 'listar_reportes' %}" class="btn btn-success">Reportes Médicos</a>
         </div>
     </div>
-    <table>
+    <table class="table table-striped">
         <thead>
             <tr>
                 <th>ID</th>
@@ -45,14 +51,14 @@
                     <td>{{ profesional.especialidad }}</td>
                     <td>{{ profesional.registro_profesional }}</td>
                     <td>{{ profesional.otro_contacto }}</td>
-                    <td class="td-acciones">
-                        <a href="{% url 'listar_disponibilidades' %}?profesional={{ profesional.pk }}" class="action-btn">Ver Disponibilidad</a>
-                        <a href="{% url 'editar_profesional' profesional.pk %}" class="action-btn">Editar</a>
-                        <a href="{% url 'eliminar_profesional' profesional.pk %}" class="action-btn delete">Eliminar</a>
+                    <td>
+                        <a href="{% url 'listar_disponibilidades' %}?profesional={{ profesional.pk }}" class="btn btn-info btn-sm">Ver Disponibilidad</a>
+                        <a href="{% url 'editar_profesional' profesional.pk %}" class="btn btn-warning btn-sm">Editar</a>
+                        <a href="{% url 'eliminar_profesional' profesional.pk %}" class="btn btn-danger btn-sm">Eliminar</a>
                     </td>
                 </tr>
             {% endfor %}
         </tbody>
     </table>
 </div>
-{%endblock%}
+{% endblock %}

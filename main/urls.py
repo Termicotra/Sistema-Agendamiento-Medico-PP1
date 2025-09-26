@@ -15,7 +15,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from paciente import views
 from facturacion import views as facturacion_views
 from inventario import views as inventario_views
@@ -24,8 +24,29 @@ from profesional import views as profesional_views
 from turno import views as turno_views
 from django.shortcuts import render
 from paciente import views as paciente_views
+from rest_framework import routers
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
+from rest_framework.permissions import AllowAny
+
+schemaView = get_schema_view(
+    openapi.Info(
+        title="API de Sistema de Agendamiento Médico",
+        default_version='v1',
+        description="Documentación de la API para el Sistema de Agendamiento Médico",
+    ),
+    public=True,
+    permission_classes=(AllowAny,),
+)
+
+router = routers.DefaultRouter()
+#Viewsets
+router.register(r'pacientes', paciente_views.PacienteViewSet)
+
 
 urlpatterns = [
+    path('api/', include(router.urls)),
+    path('swagger/', schemaView.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('', lambda request: render(request, 'menu_principal.html'), name='menu_principal'),
     path('admin/', admin.site.urls),
     path('paciente/crear/', views.crear_paciente, name='crear_paciente'),

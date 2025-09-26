@@ -10,3 +10,6 @@ class Insumo(models.Model):
 
     def __str__(self):
         return (f"{self.nombre} {self.laboratorio}")
+    
+    class Meta:
+        db_table = 'insumo'
