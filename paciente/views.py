@@ -188,8 +188,20 @@ def listar_reportes_medicos(request):
 
 from rest_framework import viewsets
 from .models import Paciente
-from .serializers import PacienteSerializer 
+from .models import HistorialClinico
+from .models import ReporteMedico
+from .serializers import PacienteSerializer
+from .serializers import HistorialClinicoSerializer
+from .serializers import ReporteMedicoSerializer 
 
 class PacienteViewSet(viewsets.ModelViewSet):
     queryset = Paciente.objects.all()
     serializer_class = PacienteSerializer
+
+class HistorialClinicoViewSet(viewsets.ModelViewSet):
+    queryset = HistorialClinico.objects.all()
+    serializer_class = HistorialClinicoSerializer
+
+class ReporteMedicoViewSet(viewsets.ModelViewSet):
+    queryset = ReporteMedico.objects.all()
+    serializer_class = ReporteMedicoSerializer

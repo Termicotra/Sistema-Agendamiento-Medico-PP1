@@ -70,3 +70,11 @@ def marcar_turno_cancelado(request, pk):
         return redirect('listar_turnos')
     # Si no es POST, mostrar confirmación
     return render(request, 'cancelar_turno.html', {'turno': turno})
+
+from rest_framework import viewsets
+from .models import Turno
+from .serializers import TurnoSerializer
+
+class TurnoViewSet(viewsets.ModelViewSet):
+    queryset = Turno.objects.all()
+    serializer_class = TurnoSerializer

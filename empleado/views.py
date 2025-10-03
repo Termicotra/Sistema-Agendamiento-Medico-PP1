@@ -42,3 +42,12 @@ def editar_empleado(request, pk):
     else:
         form = EmpleadoForm(instance=empleado)
     return render(request, 'editar_empleado.html', {'form': form, 'empleado': empleado})
+
+
+from rest_framework import viewsets
+from .models import Empleado
+from .serializers import EmpleadoSerializer
+
+class EmpleadoViewSet(viewsets.ModelViewSet):
+    queryset = Empleado.objects.all()
+    serializer_class = EmpleadoSerializer

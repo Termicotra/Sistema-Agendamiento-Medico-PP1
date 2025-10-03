@@ -40,6 +40,12 @@ schemaView = get_schema_view(
 router = routers.DefaultRouter()
 #Viewsets
 router.register(r'pacientes', paciente_views.PacienteViewSet)
+router.register(r'historialesClinicos', paciente_views.HistorialClinicoViewSet)
+router.register(r'reportesMedicos', paciente_views.ReporteMedicoViewSet)
+router.register(r'profesionales', profesional_views.ProfesionalViewSet)
+router.register(r'disponibilidades', profesional_views.DisponibilidadViewSet)
+router.register(r'empleados', empleado_views.EmpleadoViewSet)
+router.register(r'turnos', turno_views.TurnoViewSet)
 
 
 urlpatterns = [

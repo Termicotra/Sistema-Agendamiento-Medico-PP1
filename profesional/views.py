@@ -93,3 +93,17 @@ def eliminar_disponibilidad(request, pk):
         disponibilidad.delete()
         return redirect('listar_disponibilidades')
     return render(request, 'eliminar_disponibilidad.html', {'disponibilidad': disponibilidad})
+
+from rest_framework import viewsets
+from .models import Profesional
+from .models import Disponibilidad
+from .serializers import ProfesionalSerializer
+from .serializers import DisponibilidadSerializer
+
+class ProfesionalViewSet(viewsets.ModelViewSet):
+    queryset = Profesional.objects.all()
+    serializer_class = ProfesionalSerializer
+
+class DisponibilidadViewSet(viewsets.ModelViewSet):
+    queryset = Disponibilidad.objects.all()
+    serializer_class = DisponibilidadSerializer

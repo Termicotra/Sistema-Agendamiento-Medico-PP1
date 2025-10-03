@@ -7,7 +7,7 @@ class Empleado(models.Model):
     apellido = models.CharField(null=False, blank=False, max_length=128)
     fecha_nacimiento = models.DateField(null=False, blank=False)
     direccion = models.CharField(null=True, blank=True, max_length=128)
-    telefono = models.IntegerField(null=True, blank=True)
+    telefono = models.CharField(null=True, blank=True)
     cargo = models.CharField(null=False, blank=False, max_length=128)
 
     def __str__(self):
