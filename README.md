@@ -67,6 +67,35 @@ python manage.py createsuperuser
 python manage.py runserver
 ```
 
+## Ejecución con Docker
+
+1. Asegúrate de tener Docker y Docker Compose instalados en tu sistema.
+2. En la raíz del proyecto, ejecuta:
+
+```powershell
+docker-compose up --build
+```
+
+Esto construirá y levantará los contenedores de la base de datos y la aplicación.
+
+3. Ejecuta las migraciones de la base de datos dentro del contenedor web:
+
+```powershell
+docker-compose exec web python manage.py makemigrations
+
+docker-compose exec web python manage.py migrate
+```
+
+4. Accede a la aplicación en tu navegador en:
+- Admin panel: `http://localhost:8080/admin/`
+- Aplicación web: `http://localhost:8080/`
+
+5. Para detener los contenedores, presiona `Ctrl+C` en la terminal o ejecuta:
+
+```powershell
+docker-compose down
+```
+
 ## Uso
 Una vez iniciado el servidor, puedes acceder a:
 - Admin panel: `http://localhost:8000/admin/`
