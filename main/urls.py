@@ -25,6 +25,7 @@ from paciente import views as paciente_views
 from rest_framework import routers
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
+from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 from rest_framework.permissions import AllowAny
 
 schemaView = get_schema_view(
@@ -50,6 +51,9 @@ router.register(r'turnos', turno_views.TurnoViewSet)
 
 urlpatterns = [
     path('api/', include(router.urls)),
+    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
+    path('api/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
+    path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
     path('swagger/', schemaView.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('', lambda request: render(request, 'menu_principal.html'), name='menu_principal'),
     path('admin/', admin.site.urls),

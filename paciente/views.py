@@ -193,14 +193,22 @@ from .models import ReporteMedico
 from .serializers import PacienteSerializer
 from .serializers import HistorialClinicoSerializer
 from .serializers import ReporteMedicoSerializer 
+from .filters import PacienteFilter
+from .filters import HistorialClinicoFilter
+from django_filters.rest_framework import DjangoFilterBackend
+
 
 class PacienteViewSet(viewsets.ModelViewSet):
     queryset = Paciente.objects.all()
     serializer_class = PacienteSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = PacienteFilter
 
 class HistorialClinicoViewSet(viewsets.ModelViewSet):
     queryset = HistorialClinico.objects.all()
     serializer_class = HistorialClinicoSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = HistorialClinicoFilter
 
 class ReporteMedicoViewSet(viewsets.ModelViewSet):
     queryset = ReporteMedico.objects.all()
