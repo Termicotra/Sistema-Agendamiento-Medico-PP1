@@ -91,7 +91,9 @@ def marcar_turno_cancelado(request, pk):
 
 from rest_framework import viewsets
 from .models import Turno
+from .models import RecordatorioTurno
 from .serializers import TurnoSerializer
+from .serializers import RecordatorioTurnoSerializer
 
 class TurnoViewSet(viewsets.ModelViewSet):
     """
@@ -100,3 +102,11 @@ class TurnoViewSet(viewsets.ModelViewSet):
     """
     queryset = Turno.objects.all()
     serializer_class = TurnoSerializer
+
+class RecordatorioTurnoViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint para recordatorios de turnos.
+    Permite listar, crear, actualizar y eliminar recordatorios de turnos del sistema.
+    """
+    queryset = RecordatorioTurno.objects.all()
+    serializer_class = RecordatorioTurnoSerializer

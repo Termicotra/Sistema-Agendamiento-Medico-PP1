@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Turno
+from .models import RecordatorioTurno
 from paciente.serializers import PacienteSerializer
 from profesional.serializers import ProfesionalSerializer
 from empleado.serializers import EmpleadoSerializer
@@ -34,3 +35,26 @@ class TurnoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Turno
         fields = '__all__'
+
+class RecordatorioTurnoSerializer(serializers.ModelSerializer):
+    turno = TurnoSerializer(read_only=True)
+    paciente = PacienteSerializer(read_only=True)
+    turno_id = serializers.PrimaryKeyRelatedField(queryset=Turno.objects.all(), 
+        source='turno',
+        write_only=True,
+        help_text="ID del turno asociado"
+    )
+    paciente_id = serializers.PrimaryKeyRelatedField(queryset=Paciente.objects.all(), 
+        source='paciente',
+        write_only=True,
+        help_text="ID del paciente asociado"
+    )
+    fecha_envio = serializers.DateField()
+    hora_envio = serializers.TimeField()
+    mensaje = serializers.CharField(max_length=512)
+    enviado = serializers.BooleanField()
+
+    class Meta:
+        model = RecordatorioTurno
+        fields = '__all__'
+

@@ -45,7 +45,7 @@ INSTALLED_APPS = [
     'empleado',
     'paciente',
     'profesional',
-    'turno',
+    'turno'
 ]
 
 REST_FRAMEWORK = {
