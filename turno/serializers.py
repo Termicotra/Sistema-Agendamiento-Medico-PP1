@@ -14,16 +14,22 @@ class TurnoSerializer(serializers.ModelSerializer):
 
     paciente_id = serializers.PrimaryKeyRelatedField(queryset=Paciente.objects.all(), 
         source='paciente',
-        write_only=True
+        write_only=True,
+        help_text="ID del paciente asociado"
     )    
     profesional_id = serializers.PrimaryKeyRelatedField(queryset=Profesional.objects.all(), 
         source='profesional',
-        write_only=True
+        write_only=True,
+        help_text="ID del profesional asociado"
     )
     empleado_id = serializers.PrimaryKeyRelatedField(queryset=Empleado.objects.all(), 
         source='empleado',
-        write_only=True
+        write_only=True,
+        help_text="ID del empleado asociado"
     )
+    fecha = serializers.DateField(help_text="Fecha del turno")
+    hora = serializers.TimeField(help_text="Hora del turno")
+    estado = serializers.CharField(help_text="Estado actual del turno (pendiente, resuelto, cancelado, etc.)")
     
     class Meta:
         model = Turno

@@ -6,6 +6,9 @@ from django.http import HttpResponse
 from django.db.models import Q
 
 def crear_paciente(request):
+    """
+    Vista para crear un nuevo paciente mediante un formulario web.
+    """
     if request.method == 'POST':
         form = PacienteForm(request.POST)
         if form.is_valid():
@@ -16,6 +19,9 @@ def crear_paciente(request):
     return render(request, 'crear_paciente.html', {'form': form})
 
 def listar_pacientes(request):
+    """
+    Vista para listar y buscar pacientes registrados en el sistema.
+    """
     query = request.GET.get('q', '').strip()
     pacientes = Paciente.objects.all()
     if query:
@@ -40,6 +46,9 @@ def listar_pacientes(request):
     return render(request, 'listar_pacientes.html', {'pacientes': pacientes, 'q': query})
 
 def eliminar_paciente(request, pk):
+    """
+    Vista para eliminar un paciente específico.
+    """
     paciente = Paciente.objects.get(pk=pk)
     if request.method == 'POST':
         paciente.delete()
@@ -47,6 +56,9 @@ def eliminar_paciente(request, pk):
     return render(request, 'eliminar_paciente.html', {'paciente': paciente})
 
 def editar_paciente(request, pk):
+    """
+    Vista para editar los datos de un paciente existente.
+    """
     paciente = Paciente.objects.get(pk=pk)
     if request.method == 'POST':
         form = PacienteForm(request.POST, instance=paciente)
@@ -58,6 +70,9 @@ def editar_paciente(request, pk):
     return render(request, 'editar_paciente.html', {'form': form, 'paciente': paciente})
 
 def listar_historiales(request):
+    """
+    Vista para listar y buscar historiales clínicos de pacientes.
+    """
     query = request.GET.get('q', '').strip()
     historiales = HistorialClinico.objects.select_related('paciente', 'profesional').all()
     if query:
@@ -87,6 +102,9 @@ def listar_historiales(request):
     return render(request, 'listar_historiales.html', {'historiales': historiales, 'q': query})
 
 def crear_historial(request):
+    """
+    Vista para crear un nuevo historial clínico para un paciente.
+    """
     from paciente.forms import HistorialClinicoForm
     if request.method == 'POST':
         form = HistorialClinicoForm(request.POST)
@@ -98,6 +116,9 @@ def crear_historial(request):
     return render(request, 'crear_historial.html', {'form': form})
 
 def editar_historial(request, pk):
+    """
+    Vista para editar un historial clínico existente.
+    """
     from paciente.forms import HistorialClinicoForm
     historial = HistorialClinico.objects.get(pk=pk)
     if request.method == 'POST':
@@ -110,6 +131,9 @@ def editar_historial(request, pk):
     return render(request, 'editar_historial.html', {'form': form, 'historial': historial})
 
 def eliminar_historial(request, pk):
+    """
+    Vista para eliminar un historial clínico específico.
+    """
     historial = HistorialClinico.objects.get(pk=pk)
     if request.method == 'POST':
         historial.delete()
@@ -117,6 +141,9 @@ def eliminar_historial(request, pk):
     return render(request, 'eliminar_historial.html', {'historial': historial})
 
 def listar_reportes(request):
+    """
+    Vista para listar y buscar reportes médicos de pacientes.
+    """
     query = request.GET.get('q', '')
     reportes = ReporteMedico.objects.select_related('paciente', 'profesional').all()
     if query:
@@ -130,6 +157,9 @@ def listar_reportes(request):
     return render(request, 'listar_reportes.html', {'reportes': reportes, 'q': query})
 
 def crear_reporte(request):
+    """
+    Vista para crear un nuevo reporte médico para un paciente.
+    """
     from paciente.forms import ReporteMedicoForm
     if request.method == 'POST':
         form = ReporteMedicoForm(request.POST)
@@ -141,6 +171,9 @@ def crear_reporte(request):
     return render(request, 'crear_reporte.html', {'form': form})
 
 def editar_reporte(request, pk):
+    """
+    Vista para editar un reporte médico existente.
+    """
     from paciente.forms import ReporteMedicoForm
     reporte = ReporteMedico.objects.get(pk=pk)
     if request.method == 'POST':
@@ -153,6 +186,9 @@ def editar_reporte(request, pk):
     return render(request, 'editar_reporte.html', {'form': form, 'reporte': reporte})
 
 def eliminar_reporte(request, pk):
+    """
+    Vista para eliminar un reporte médico específico.
+    """
     reporte = ReporteMedico.objects.get(pk=pk)
     if request.method == 'POST':
         reporte.delete()
@@ -160,6 +196,9 @@ def eliminar_reporte(request, pk):
     return render(request, 'eliminar_reporte.html', {'reporte': reporte})
 
 def listar_reportes_medicos(request):
+    """
+    Vista para listar y buscar reportes médicos con filtros avanzados.
+    """
     query = request.GET.get('q', '').strip()
     reportes = ReporteMedico.objects.select_related('paciente', 'profesional').all()
     if query:
@@ -199,17 +238,29 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 
 class PacienteViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint para gestionar pacientes.
+    Permite listar, crear, actualizar y eliminar pacientes del sistema.
+    """
     queryset = Paciente.objects.all()
     serializer_class = PacienteSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_class = PacienteFilter
 
 class HistorialClinicoViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint para gestionar historiales clínicos.
+    Permite listar, crear, actualizar y eliminar historiales clínicos asociados a pacientes.
+    """
     queryset = HistorialClinico.objects.all()
     serializer_class = HistorialClinicoSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_class = HistorialClinicoFilter
 
 class ReporteMedicoViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint para gestionar reportes médicos.
+    Permite listar, crear, actualizar y eliminar reportes médicos asociados a pacientes.
+    """
     queryset = ReporteMedico.objects.all()
     serializer_class = ReporteMedicoSerializer

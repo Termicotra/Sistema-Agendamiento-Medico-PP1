@@ -8,6 +8,9 @@ RESUELTO = 'No activo'
 CANCELADO = 'Cancelado'
 
 def crear_turno(request):
+    """
+    Vista para crear un nuevo turno mediante un formulario web.
+    """
     if request.method == 'POST':
         form = TurnoForm(request.POST)
         if form.is_valid():
@@ -18,6 +21,9 @@ def crear_turno(request):
     return render(request, 'crear_turno.html', {'form': form})
 
 def listar_turnos(request):
+    """
+    Vista para listar y buscar turnos registrados en el sistema.
+    """
     query = request.GET.get('q', '')
     mostrar_ocultos = request.GET.get('mostrar_ocultos', '') == '1'
     if mostrar_ocultos:
@@ -38,6 +44,9 @@ def listar_turnos(request):
     return render(request, 'listar_turnos.html', {'turnos': turnos, 'q': query, 'mostrar_ocultos': mostrar_ocultos})
 
 def eliminar_turno(request, pk):
+    """
+    Vista para eliminar un turno específico.
+    """
     turno = Turno.objects.get(pk=pk)
     if request.method == 'POST':
         turno.delete()
@@ -45,6 +54,9 @@ def eliminar_turno(request, pk):
     return render(request, 'eliminar_turno.html', {'turno': turno})
 
 def editar_turno(request, pk):
+    """
+    Vista para editar los datos de un turno existente.
+    """
     turno = Turno.objects.get(pk=pk)
     if request.method == 'POST':
         form = TurnoForm(request.POST, instance=turno)
@@ -56,6 +68,9 @@ def editar_turno(request, pk):
     return render(request, 'editar_turno.html', {'form': form, 'turno': turno})
 
 def marcar_turno_resuelto(request, pk):
+    """
+    Vista para marcar un turno como resuelto.
+    """
     turno = get_object_or_404(Turno, pk=pk)
     if request.method == 'POST':
         turno.estado = RESUELTO
@@ -63,6 +78,9 @@ def marcar_turno_resuelto(request, pk):
     return redirect('listar_turnos')
 
 def marcar_turno_cancelado(request, pk):
+    """
+    Vista para marcar un turno como cancelado.
+    """
     turno = get_object_or_404(Turno, pk=pk)
     if request.method == 'POST':
         turno.estado = 'Cancelado'
@@ -76,5 +94,9 @@ from .models import Turno
 from .serializers import TurnoSerializer
 
 class TurnoViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint para gestionar turnos.
+    Permite listar, crear, actualizar y eliminar turnos del sistema.
+    """
     queryset = Turno.objects.all()
     serializer_class = TurnoSerializer
