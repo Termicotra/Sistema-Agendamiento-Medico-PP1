@@ -118,7 +118,7 @@ from .serializers import DisponibilidadSerializer
 class ProfesionalViewSet(viewsets.ModelViewSet):
     """
     API endpoint para gestionar profesionales.
-    Permite listar, crear, actualizar y eliminar profesionales del sistema.
+    Permite listar, crear, actualizar y eliminar profesionales del sistema de agendamiento.
     """
     queryset = Profesional.objects.all()
     serializer_class = ProfesionalSerializer

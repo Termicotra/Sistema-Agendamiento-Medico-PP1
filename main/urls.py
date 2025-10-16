@@ -40,7 +40,7 @@ schemaView = get_schema_view(
 )
 
 router = routers.DefaultRouter()
-#Viewsets
+#Viewsets de las APIs
 router.register(r'pacientes', paciente_views.PacienteViewSet)
 router.register(r'historialesClinicos', paciente_views.HistorialClinicoViewSet)
 router.register(r'reportesMedicos', paciente_views.ReporteMedicoViewSet)

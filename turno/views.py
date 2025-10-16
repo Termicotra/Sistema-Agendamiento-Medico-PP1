@@ -98,7 +98,7 @@ from .serializers import RecordatorioTurnoSerializer
 class TurnoViewSet(viewsets.ModelViewSet):
     """
     API endpoint para gestionar turnos.
-    Permite listar, crear, actualizar y eliminar turnos del sistema.
+    Permite listar, crear, actualizar y eliminar turnos del sistema de agendamiento.
     """
     queryset = Turno.objects.all()
     serializer_class = TurnoSerializer
@@ -106,7 +106,7 @@ class TurnoViewSet(viewsets.ModelViewSet):
 class RecordatorioTurnoViewSet(viewsets.ModelViewSet):
     """
     API endpoint para recordatorios de turnos.
-    Permite listar, crear, actualizar y eliminar recordatorios de turnos del sistema.
+    Permite listar, crear, actualizar y eliminar recordatorios de turnos del sistema de agendamiento.
     """
     queryset = RecordatorioTurno.objects.all()
     serializer_class = RecordatorioTurnoSerializer

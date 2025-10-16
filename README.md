@@ -69,7 +69,7 @@ python manage.py runserver
 
 ## Ejecución con Docker
 
-1. Asegúrate de tener Docker y Docker Compose instalados en tu sistema.
+1. Asegúrate de tener Docker instalado en tu sistema.
 2. En la raíz del proyecto, ejecuta:
 
 ```powershell
