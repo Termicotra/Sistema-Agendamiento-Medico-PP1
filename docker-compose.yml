@@ -1,0 +1,33 @@
+
+
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: sistema_agendamiento
+      POSTGRES_USER: master
+      POSTGRES_PASSWORD: admin
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "1234:5432"
+
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8080:8000"
+    depends_on:
+      - db
+    environment:
+      - DEBUG=1
+      - DB_NAME=sistema_agendamiento
+      - DB_USER=master
+      - DB_PASSWORD=admin
+      - DB_HOST=db
+      - DB_PORT=5432
+
+volumes:
+  postgres_data:

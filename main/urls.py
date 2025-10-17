@@ -15,37 +15,53 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from paciente import views
-from facturacion import views as facturacion_views
-from inventario import views as inventario_views
 from empleado import views as empleado_views
 from profesional import views as profesional_views
 from turno import views as turno_views
 from django.shortcuts import render
 from paciente import views as paciente_views
+from rest_framework import routers
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
+from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
+from rest_framework.permissions import AllowAny
+from turno.views import RecordatorioTurnoViewSet
+
+schemaView = get_schema_view(
+    openapi.Info(
+        title="API de Sistema de Agendamiento Médico",
+        default_version='v1',
+        description="Documentación de la API para el Sistema de Agendamiento Médico",
+    ),
+    public=True,
+    permission_classes=(AllowAny,),
+)
+
+router = routers.DefaultRouter()
+#Viewsets de las APIs
+router.register(r'pacientes', paciente_views.PacienteViewSet)
+router.register(r'historialesClinicos', paciente_views.HistorialClinicoViewSet)
+router.register(r'reportesMedicos', paciente_views.ReporteMedicoViewSet)
+router.register(r'profesionales', profesional_views.ProfesionalViewSet)
+router.register(r'disponibilidades', profesional_views.DisponibilidadViewSet)
+router.register(r'empleados', empleado_views.EmpleadoViewSet)
+router.register(r'turnos', turno_views.TurnoViewSet)
+router.register(r'recordatoriosTurno', RecordatorioTurnoViewSet)
 
 urlpatterns = [
+    path('api/', include(router.urls)),
+    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
+    path('api/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
+    path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+    path('swagger/', schemaView.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('', lambda request: render(request, 'menu_principal.html'), name='menu_principal'),
     path('admin/', admin.site.urls),
     path('paciente/crear/', views.crear_paciente, name='crear_paciente'),
     path('paciente/', views.listar_pacientes, name='listar_pacientes'),
     path('paciente/eliminar/<int:pk>/', views.eliminar_paciente, name='eliminar_paciente'),
     path('paciente/editar/<int:pk>/', views.editar_paciente, name='editar_paciente'),
-
-    path('facturacion/crear/', facturacion_views.crear_facturacion, name='crear_facturacion'),
-    path('facturacion/', facturacion_views.listar_facturaciones, name='listar_facturaciones'),
-    path('facturacion/eliminar/<int:pk>/', facturacion_views.eliminar_facturacion, name='eliminar_facturacion'),
-    path('facturacion/editar/<int:pk>/', facturacion_views.editar_facturacion, name='editar_facturacion'),
-    path('facturacion/<int:pk>/', facturacion_views.detalle_facturacion, name='detalle_facturacion'),
-    path('facturacion/eliminar-detalle/<int:detalle_pk>/', facturacion_views.eliminar_detalle_factura, name='eliminar_detalle_factura'),
-    path('facturacion/<int:pk>/pagada/', facturacion_views.marcar_facturacion_pagada, name='marcar_facturacion_pagada'),
-    path('facturacion/<int:pk>/anulada/', facturacion_views.marcar_facturacion_anulada, name='marcar_facturacion_anulada'),
-
-    path('inventario/crear/', inventario_views.crear_insumo, name='crear_insumo'),
-    path('inventario/', inventario_views.listar_insumos, name='listar_insumos'),
-    path('inventario/eliminar/<int:pk>/', inventario_views.eliminar_insumo, name='eliminar_insumo'),
-    path('inventario/editar/<int:pk>/', inventario_views.editar_insumo, name='editar_insumo'),
 
     path('empleado/crear/', empleado_views.crear_empleado, name='crear_empleado'),
     path('empleado/', empleado_views.listar_empleados, name='listar_empleados'),

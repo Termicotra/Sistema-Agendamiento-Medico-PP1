@@ -4,6 +4,9 @@ from empleado.models import Empleado
 from empleado.forms import EmpleadoForm
 
 def crear_empleado(request):
+    """
+    Vista para crear un nuevo empleado mediante un formulario web.
+    """
     if request.method == 'POST':
         form = EmpleadoForm(request.POST)
         if form.is_valid():
@@ -14,6 +17,9 @@ def crear_empleado(request):
     return render(request, 'crear_empleado.html', {'form': form})
 
 def listar_empleados(request):
+    """
+    Vista para listar y buscar empleados registrados en el sistema.
+    """
     query = request.GET.get('q', '')
     empleados = Empleado.objects.all()
     if query:
@@ -26,6 +32,9 @@ def listar_empleados(request):
     return render(request, 'listar_empleados.html', {'empleados': empleados, 'q': query})
 
 def eliminar_empleado(request, pk):
+    """
+    Vista para eliminar un empleado específico.
+    """
     empleado = Empleado.objects.get(pk=pk)
     if request.method == 'POST':
         empleado.delete()
@@ -33,6 +42,9 @@ def eliminar_empleado(request, pk):
     return render(request, 'eliminar_empleado.html', {'empleado': empleado})
 
 def editar_empleado(request, pk):
+    """
+    Vista para editar los datos de un empleado existente.
+    """
     empleado = Empleado.objects.get(pk=pk)
     if request.method == 'POST':
         form = EmpleadoForm(request.POST, instance=empleado)
@@ -42,3 +54,16 @@ def editar_empleado(request, pk):
     else:
         form = EmpleadoForm(instance=empleado)
     return render(request, 'editar_empleado.html', {'form': form, 'empleado': empleado})
+
+
+from rest_framework import viewsets
+from .models import Empleado
+from .serializers import EmpleadoSerializer
+
+class EmpleadoViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint para gestionar empleados.
+    Permite listar, crear, actualizar y eliminar empleados del sistema de agendamiento.
+    """
+    queryset = Empleado.objects.all()
+    serializer_class = EmpleadoSerializer
