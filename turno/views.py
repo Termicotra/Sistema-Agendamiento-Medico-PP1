@@ -110,3 +110,5 @@ class RecordatorioTurnoViewSet(viewsets.ModelViewSet):
     """
     queryset = RecordatorioTurno.objects.all()
     serializer_class = RecordatorioTurnoSerializer
+
+# Ver formas de documentar por cada método

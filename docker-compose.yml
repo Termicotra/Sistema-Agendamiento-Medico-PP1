@@ -10,7 +10,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
-      - "1234:5432"
+      - "15432:5432" # Poner encima de 8000
 
   web:
     build: .
