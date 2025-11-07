@@ -68,6 +68,21 @@ SPECTACULAR_SETTINGS = {
     'TITLE': 'Sistema de Agendamiento Médico API',
     'DESCRIPTION': 'API para gestionar módulos del sistema de agendamiento médico.',
     'VERSION': '1.0.0',
+    'SECURITY': [
+        {
+            'jwtAuth': []
+        }
+    ],
+    'COMPONENTS': {
+        'SECURITY_SCHEMES': {
+            'jwtAuth': {
+                'type': 'http',
+                'scheme': 'bearer',
+                'bearerFormat': 'JWT',
+                'description': 'Autenticación JWT usando el esquema Bearer.'
+            }
+        }
+    }
 }
 
 # Configuración de JWT
@@ -172,6 +187,19 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
+
+# Configuración para drf-yasg: mostrar JWT en Swagger
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'Bearer': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header',
+            'description': 'JWT Authorization header using the Bearer scheme. Example: "Authorization: Bearer {token}"',
+        }
+    },
+    'USE_SESSION_AUTH': False,
+}
 
 # URL de login para el decorator login_required y redirecciones
 LOGIN_URL = '/auth/login/'
