@@ -21,23 +21,17 @@ from empleado import views as empleado_views
 from profesional import views as profesional_views
 from turno import views as turno_views
 from django.shortcuts import render
-from autenticacion.views import home_view, paciente_dashboard, profesional_dashboard
 from paciente import views as paciente_views
 from rest_framework import routers
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 from rest_framework.permissions import AllowAny
-
-schemaView = get_schema_view(
-    openapi.Info(
-        title="API de Sistema de Agendamiento Médico",
-        default_version='v1',
-        description="Documentación de la API para el Sistema de Agendamiento Médico",
-    ),
-    public=True,
-    permission_classes=(AllowAny,),
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
 )
+
 
 router = routers.DefaultRouter()
 #Viewsets
@@ -52,14 +46,22 @@ router.register(r'turnos', turno_views.TurnoViewSet)
 
 urlpatterns = [
     path('api/', include(router.urls)),
-    path('auth/', include(('autenticacion.urls', 'autenticacion'), namespace='autenticacion')),
+    # --- NUEVOS ENDPOINTS DE AUTENTICACIÓN ---
+    # INICIO DE SESIÓN (LOGIN): Obtiene access y refresh tokens
+    path('api/auth/login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+
+    # REFRESCAR TOKEN: Obtiene un nuevo access token usando el refresh token
+    path('api/auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+
+    # RUTAS DE USUARIOS (Registro, Logout, Test Protegido)
+    # Incluimos el users/urls.py bajo el prefijo /api/auth/
+    path('api/auth/', include('users.urls')),
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
-    path('swagger/', schemaView.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
-    path('', home_view, name='menu_principal'),
-    path('dashboard/paciente/', paciente_dashboard, name='paciente_dashboard'),
-    path('dashboard/profesional/', profesional_dashboard, name='profesional_dashboard'),
+    # path('', home_view, name='menu_principal'),
+    # path('dashboard/paciente/', paciente_dashboard, name='paciente_dashboard'),
+    # path('dashboard/profesional/', profesional_dashboard, name='profesional_dashboard'),
     path('admin/', admin.site.urls),
     path('paciente/crear/', views.crear_paciente, name='crear_paciente'),
     path('paciente/', views.listar_pacientes, name='listar_pacientes'),

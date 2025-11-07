@@ -33,7 +33,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'rest_framework_simplejwt.token_blacklist',
+    'rest_framework_simplejwt',
     'corsheaders',
     'rest_framework',
     'drf_yasg',
@@ -48,51 +48,37 @@ INSTALLED_APPS = [
     'empleado',
     'paciente',
     'profesional',
-    'autenticacion',
-    'turno'
+    'turno',
+    'users'
 ]
 
 
 REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
-    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend'
+    ],
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'autenticacion.authentication.CustomJWTAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication', # <--- REQUERIDO
     ),
     'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated',
-    ),
+        'rest_framework.permissions.IsAuthenticated', # Opcional, pero recomendado para proteger todo por defecto
+    )
 }
 
 SPECTACULAR_SETTINGS = {
     'TITLE': 'Sistema de Agendamiento Médico API',
     'DESCRIPTION': 'API para gestionar módulos del sistema de agendamiento médico.',
     'VERSION': '1.0.0',
-    'SECURITY': [
-        {
-            'jwtAuth': []
-        }
-    ],
-    'COMPONENTS': {
-        'SECURITY_SCHEMES': {
-            'jwtAuth': {
-                'type': 'http',
-                'scheme': 'bearer',
-                'bearerFormat': 'JWT',
-                'description': 'Autenticación JWT usando el esquema Bearer.'
-            }
-        }
-    }
 }
 
 # Configuración de JWT
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
-    'ROTATE_REFRESH_TOKENS': False,
-    'BLACKLIST_AFTER_ROTATION': True,
-    'ALGORITHM': 'HS256',
-    'AUTH_HEADER_TYPES': ('Bearer',),
+    "ACCESS_TOKEN_LIFETIME": timedelta(hours=1),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=30),
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
+    "UPDATE_LAST_LOGIN": True,
 }
 
 MIDDLEWARE = [
@@ -188,21 +174,10 @@ STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
 
-# Configuración para drf-yasg: mostrar JWT en Swagger
-SWAGGER_SETTINGS = {
-    'SECURITY_DEFINITIONS': {
-        'Bearer': {
-            'type': 'apiKey',
-            'name': 'Authorization',
-            'in': 'header',
-            'description': 'JWT Authorization header using the Bearer scheme. Example: "Authorization: Bearer {token}"',
-        }
-    },
-    'USE_SESSION_AUTH': False,
-}
+
 
 # URL de login para el decorator login_required y redirecciones
-LOGIN_URL = '/auth/login/'
+#LOGIN_URL = '/auth/login/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
