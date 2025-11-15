@@ -37,12 +37,32 @@ class Turno(models.Model):
                 f"{self.profesional.especialidad} {self.fecha}")
     
     def clean(self):
-        """Validar que la fecha y hora del turno coincidan con la disponibilidad del profesional."""
+        """Validar disponibilidad del profesional y evitar turnos duplicados."""
         super().clean()
         
-        if not self.profesional or not self.fecha or not self.hora:
+        if not self.profesional or not self.fecha or not self.hora or not self.paciente:
             return
         
+        # Validación 1: Evitar turnos duplicados (mismo paciente, profesional y fecha con estado activo o pendiente)
+        turnos_existentes = Turno.objects.filter(
+            paciente=self.paciente,
+            profesional=self.profesional,
+            fecha=self.fecha,
+            estado__in=['Pendiente', 'Activo']
+        )
+        
+        # Excluir el turno actual si estamos editando
+        if self.pk:
+            turnos_existentes = turnos_existentes.exclude(pk=self.pk)
+        
+        if turnos_existentes.exists():
+            raise ValidationError(
+                f"Ya existe un turno activo o pendiente para el paciente "
+                f"{self.paciente.nombre} {self.paciente.apellido} con el profesional "
+                f"{self.profesional.nombre} {self.profesional.apellido} en la fecha {self.fecha}."
+            )
+        
+        # Validación 2: Verificar disponibilidad del profesional
         # Obtener el día de la semana en español
         dias_semana = {
             0: 'Lunes',
