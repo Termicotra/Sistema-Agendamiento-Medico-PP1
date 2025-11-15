@@ -3,46 +3,66 @@ from django.db.models import Q
 from django.views.decorators.http import require_POST
 from turno.models import Turno
 from turno.forms import TurnoForm
+from django.contrib.auth.decorators import login_required, permission_required
 
 RESUELTO = 'No activo'
 CANCELADO = 'Cancelado'
 
+@login_required
+@permission_required('turno.add_turno', raise_exception=True)
 def crear_turno(request):
     """
-    Vista para crear un nuevo turno mediante un formulario web.
+    Vista para crear un nuevo turno solo para el paciente autenticado, filtrando profesionales por especialidad y validando disponibilidad.
     """
-    if request.method == 'POST':
-        form = TurnoForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('listar_turnos')
-    else:
-        form = TurnoForm()
-    return render(request, 'crear_turno.html', {'form': form})
+    from paciente.models import Paciente
+    from profesional.models import Profesional, Disponibilidad
+    mensaje_error = ''
+    disponibilidades = []
+    if hasattr(request.user, 'paciente'):
+        paciente = request.user.paciente
 
+@login_required
+@permission_required('turno.view_turno', raise_exception=True)
 def listar_turnos(request):
     """
-    Vista para listar y buscar turnos registrados en el sistema.
+    Vista para listar turnos. Si el usuario es del grupo 'pacientes', solo ve sus propios turnos.
     """
-    query = request.GET.get('q', '')
     mostrar_ocultos = request.GET.get('mostrar_ocultos', '') == '1'
-    if mostrar_ocultos:
-        turnos = Turno.objects.filter(estado__in=[RESUELTO, CANCELADO])
+    if request.user.groups.filter(name__iexact='pacientes').exists():
+        if hasattr(request.user, 'paciente'):
+            paciente = request.user.paciente
+        else:
+            from paciente.models import Paciente
+            paciente = Paciente.objects.filter(ci=request.user.username).first()
+        if paciente:
+            if mostrar_ocultos:
+                turnos = Turno.objects.filter(paciente=paciente, estado__in=[RESUELTO, CANCELADO])
+            else:
+                turnos = Turno.objects.filter(paciente=paciente).exclude(estado__in=[RESUELTO, CANCELADO])
+        else:
+            turnos = Turno.objects.none()
+        return render(request, 'listar_turnos.html', {'turnos': turnos, 'q': '', 'mostrar_ocultos': mostrar_ocultos})
     else:
-        turnos = Turno.objects.exclude(estado__in=[RESUELTO, CANCELADO])
-    if query:
-        turnos = turnos.filter(
-            Q(fecha__icontains=query) |
-            Q(estado__icontains=query) |
-            Q(profesional__nombre__icontains=query) |
-            Q(profesional__apellido__icontains=query) |
-            Q(paciente__nombre__icontains=query) |
-            Q(paciente__apellido__icontains=query) |
-            Q(empleado__nombre__icontains=query) |
-            Q(empleado__apellido__icontains=query)
-        )
-    return render(request, 'listar_turnos.html', {'turnos': turnos, 'q': query, 'mostrar_ocultos': mostrar_ocultos})
+        query = request.GET.get('q', '')
+        if mostrar_ocultos:
+            turnos = Turno.objects.filter(estado__in=[RESUELTO, CANCELADO])
+        else:
+            turnos = Turno.objects.exclude(estado__in=[RESUELTO, CANCELADO])
+        if query:
+            turnos = turnos.filter(
+                Q(fecha__icontains=query) |
+                Q(estado__icontains=query) |
+                Q(profesional__nombre__icontains=query) |
+                Q(profesional__apellido__icontains=query) |
+                Q(paciente__nombre__icontains=query) |
+                Q(paciente__apellido__icontains=query) |
+                Q(empleado__nombre__icontains=query) |
+                Q(empleado__apellido__icontains=query)
+            )
+        return render(request, 'listar_turnos.html', {'turnos': turnos, 'q': query, 'mostrar_ocultos': mostrar_ocultos})
 
+@login_required
+@permission_required('turno.delete_turno', raise_exception=True)
 def eliminar_turno(request, pk):
     """
     Vista para eliminar un turno específico.
@@ -53,6 +73,8 @@ def eliminar_turno(request, pk):
         return redirect('listar_turnos')
     return render(request, 'eliminar_turno.html', {'turno': turno})
 
+@login_required
+@permission_required('turno.change_turno', raise_exception=True)
 def editar_turno(request, pk):
     """
     Vista para editar los datos de un turno existente.
@@ -67,6 +89,8 @@ def editar_turno(request, pk):
         form = TurnoForm(instance=turno)
     return render(request, 'editar_turno.html', {'form': form, 'turno': turno})
 
+@login_required
+@permission_required('turno.change_turno', raise_exception=True)
 def marcar_turno_resuelto(request, pk):
     """
     Vista para marcar un turno como resuelto.
@@ -77,6 +101,8 @@ def marcar_turno_resuelto(request, pk):
         turno.save()
     return redirect('listar_turnos')
 
+@login_required
+@permission_required('turno.change_turno', raise_exception=True)
 def marcar_turno_cancelado(request, pk):
     """
     Vista para marcar un turno como cancelado.
@@ -93,6 +119,8 @@ from rest_framework import viewsets
 from .models import Turno
 from .serializers import TurnoSerializer
 
+from rest_framework.permissions import DjangoModelPermissions
+
 class TurnoViewSet(viewsets.ModelViewSet):
     """
     API endpoint para gestionar turnos.
@@ -100,3 +128,4 @@ class TurnoViewSet(viewsets.ModelViewSet):
     """
     queryset = Turno.objects.all()
     serializer_class = TurnoSerializer
+    permission_classes = [DjangoModelPermissions]

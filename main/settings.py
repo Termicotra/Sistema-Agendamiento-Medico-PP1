@@ -57,7 +57,7 @@ REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'autenticacion.authentication.CustomJWTAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
@@ -68,21 +68,6 @@ SPECTACULAR_SETTINGS = {
     'TITLE': 'Sistema de Agendamiento Médico API',
     'DESCRIPTION': 'API para gestionar módulos del sistema de agendamiento médico.',
     'VERSION': '1.0.0',
-    'SECURITY': [
-        {
-            'jwtAuth': []
-        }
-    ],
-    'COMPONENTS': {
-        'SECURITY_SCHEMES': {
-            'jwtAuth': {
-                'type': 'http',
-                'scheme': 'bearer',
-                'bearerFormat': 'JWT',
-                'description': 'Autenticación JWT usando el esquema Bearer.'
-            }
-        }
-    }
 }
 
 # Configuración de JWT
@@ -189,6 +174,7 @@ STATICFILES_DIRS = [
 ]
 
 # Configuración para drf-yasg: mostrar JWT en Swagger
+
 SWAGGER_SETTINGS = {
     'SECURITY_DEFINITIONS': {
         'Bearer': {
@@ -200,6 +186,7 @@ SWAGGER_SETTINGS = {
     },
     'USE_SESSION_AUTH': False,
 }
+
 
 # URL de login para el decorator login_required y redirecciones
 LOGIN_URL = '/auth/login/'

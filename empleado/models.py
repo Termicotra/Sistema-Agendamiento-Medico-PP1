@@ -2,6 +2,7 @@ from django.db import models
 
 class Empleado(models.Model):
     id_empleado = models.AutoField(primary_key=True)
+    user = models.OneToOneField('auth.User', on_delete=models.CASCADE, null=True, blank=True)
     ci = models.CharField(null=False, blank=False, max_length=128)
     nombre = models.CharField(null=False, blank=False, max_length=128)
     apellido = models.CharField(null=False, blank=False, max_length=128)
