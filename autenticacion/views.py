@@ -16,7 +16,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.contrib.auth.forms import PasswordChangeForm
 from rest_framework_simplejwt.token_blacklist.models import OutstandingToken, BlacklistedToken
 from drf_spectacular.utils import extend_schema
-from .models import BlacklistedAccessToken, SolicitudRegistro
+from .models import SolicitudRegistro
 from django.contrib.auth.hashers import make_password
 from django.utils import timezone
 
@@ -25,7 +25,7 @@ def _get_user_perfil_data(user):
     
     Retorna un diccionario con:
     - group: nombre del grupo
-    - perfil: instancia del modelo (Paciente/Profesional/Empleado)
+    - perfil: instancia del modelo (Paciente/Profesional)
     - perfil_dict: diccionario con los datos serializados
     - perfil_data: lista de tuplas (label, value) para mostrar en templates
     """
@@ -45,11 +45,6 @@ def _get_user_perfil_data(user):
             "model_attr": "profesional",
             "import_path": ("profesional.models", "Profesional"),
             "serializer_path": ("profesional.serializers", "ProfesionalSerializer"),
-        },
-        "empleados": {
-            "model_attr": "empleado",
-            "import_path": ("empleado.models", "Empleado"),
-            "serializer_path": ("empleado.serializers", "EmpleadoSerializer"),
         },
     }
     
@@ -202,23 +197,19 @@ def detalle_solicitud_view(request, solicitud_id):
         return redirect("menu_principal")
     from paciente.models import Paciente
     from profesional.models import Profesional
-    from empleado.models import Empleado
     from django.shortcuts import get_object_or_404
     
     solicitud = get_object_or_404(SolicitudRegistro, id=solicitud_id)
     perfil_existente = None
     
-    # Buscar datos existentes del paciente/profesional/empleado con esta cédula
+    # Buscar datos existentes del paciente/profesional con esta cédula
     paciente = Paciente.objects.filter(ci=solicitud.ci).first()
     profesional = Profesional.objects.filter(ci=solicitud.ci).first()
-    empleado = Empleado.objects.filter(ci=solicitud.ci).first()
     
     if paciente:
         perfil_existente = {"tipo": "Paciente", "datos": paciente}
     elif profesional:
         perfil_existente = {"tipo": "Profesional", "datos": profesional}
-    elif empleado:
-        perfil_existente = {"tipo": "Empleado", "datos": empleado}
     
     return render(request, "detalle_solicitud.html", {
         "solicitud": solicitud,
@@ -232,7 +223,6 @@ def procesar_solicitud_view(request, solicitud_id):
         return redirect("menu_principal")
     from paciente.models import Paciente
     from profesional.models import Profesional
-    from empleado.models import Empleado
     from django.shortcuts import get_object_or_404
     
     solicitud = get_object_or_404(SolicitudRegistro, id=solicitud_id)
@@ -271,11 +261,6 @@ def procesar_solicitud_view(request, solicitud_id):
                 if profesional:
                     profesional.user = user
                     profesional.save()
-            elif group_name == "empleados":
-                empleado = Empleado.objects.filter(ci=solicitud.ci).first()
-                if empleado:
-                    empleado.user = user
-                    empleado.save()
             # elif group_name == "administradores": no requiere perfil adicional
             
             # Marcar solicitud como aprobada
@@ -310,8 +295,6 @@ def login_view(request):
                     return redirect("profesional_dashboard")
                 if user.groups.filter(name="pacientes").exists():
                     return redirect("paciente_dashboard")
-                if user.groups.filter(name="empleados").exists():
-                    return redirect("menu_principal")
                 # default
                 return redirect("menu_principal")
             else:
@@ -362,7 +345,15 @@ class MyTokenObtainPairView(TokenObtainPairView):
                     'detail': errors[0] if len(errors) == 1 else "\n".join(errors)
                 }, status=status.HTTP_401_UNAUTHORIZED)
         
-        return Response(serializer.validated_data, status=status.HTTP_200_OK)
+        # Agregar espaciado para mejor visualización en Swagger
+        data = serializer.validated_data
+        formatted_data = {
+            'refresh_token': data['refresh'],
+            'access_token': data['access']
+
+        }
+        
+        return Response(formatted_data, status=status.HTTP_200_OK)
 
 
 @login_required
@@ -568,7 +559,7 @@ class AprobarSolicitudAPIView(generics.GenericAPIView):
     Uso:
       POST /auth/api/solicitudes/<id>/aprobar/
       Headers: Authorization: Bearer <access_token>
-      Body JSON: { "group": "pacientes|profesionales|empleados" }
+      Body JSON: { "group": "pacientes|profesionales|administradores" }
     
     Respuestas:
       200 OK - solicitud aprobada exitosamente
@@ -621,7 +612,6 @@ class AprobarSolicitudAPIView(generics.GenericAPIView):
         # Crear usuario
         from paciente.models import Paciente
         from profesional.models import Profesional
-        from empleado.models import Empleado
         
         user = User.objects.create_user(
             username=solicitud.username,
@@ -645,11 +635,6 @@ class AprobarSolicitudAPIView(generics.GenericAPIView):
             if profesional:
                 profesional.user = user
                 profesional.save()
-        elif group_name == "empleados":
-            empleado = Empleado.objects.filter(ci=solicitud.ci).first()
-            if empleado:
-                empleado.user = user
-                empleado.save()
         # elif group_name == "administradores": no requiere perfil adicional
         
         # Marcar solicitud como aprobada

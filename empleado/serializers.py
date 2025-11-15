@@ -7,9 +7,9 @@ class EmpleadoSerializer(serializers.ModelSerializer):
     apellido = serializers.CharField(help_text="Apellido del empleado")
     fecha_nacimiento = serializers.DateField(help_text="Fecha de nacimiento del empleado")
     direccion = serializers.CharField(help_text="Dirección del empleado", required=False, allow_blank=True)
-    telefono = serializers.CharField(help_text="Teléfono de contacto principal")
-    otro_contacto = serializers.CharField(help_text="Otro medio de contacto", required=False, allow_blank=True)
+    telefono = serializers.CharField(help_text="Teléfono de contacto principal", required=False, allow_blank=True)
+    cargo = serializers.CharField(help_text="Cargo del empleado")
     
     class Meta:
         model = Empleado
-        fields = '__all__'
+        exclude = ['user']  # Excluir el campo user

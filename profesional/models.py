@@ -14,7 +14,7 @@ class Profesional(models.Model):
     otro_contacto = models.CharField(blank=True, max_length=254)
 
     def __str__(self):
-        return f"{self.nombre} {self.apellido} "
+        return f"{self.nombre} {self.apellido}"
     class Meta:
         db_table = 'profesional'
 

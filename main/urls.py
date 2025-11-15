@@ -84,6 +84,10 @@ urlpatterns = [
     path('turno/<int:pk>/resuelto/', turno_views.marcar_turno_resuelto, name='marcar_turno_resuelto'),
     path('turno/<int:pk>/cancelado/', turno_views.marcar_turno_cancelado, name='marcar_turno_cancelado'),
 
+    # Módulo de Solicitudes Turno
+    path('solicitudes-turno/', turno_views.solicitudes_turno, name='solicitudes_turno'),
+    path('solicitudes-turno/<int:pk>/marcar-activo/', turno_views.marcar_turno_activo, name='marcar_turno_activo'),
+
     path('disponibilidad/', profesional_views.listar_disponibilidades, name='listar_disponibilidades'),
     path('disponibilidad/crear/', profesional_views.crear_disponibilidad, name='crear_disponibilidad'),
     path('disponibilidad/editar/<int:pk>/', profesional_views.editar_disponibilidad, name='editar_disponibilidad'),

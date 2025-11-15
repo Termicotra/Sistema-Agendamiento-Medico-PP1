@@ -1,17 +1,18 @@
 from django import forms
 from turno.models import Turno
+from profesional.models import Profesional, Disponibilidad
 
-from profesional.models import Profesional
 class TurnoForm(forms.ModelForm):
     especialidad = forms.ChoiceField(label='Especialidad', required=False)
 
     class Meta:
         model = Turno
-        fields = ['fecha', 'hora', 'modalidad', 'motivo', 'fue_notificado', 'especialidad', 'profesional', 'empleado']
+        fields = ['paciente', 'fecha', 'hora', 'modalidad', 'motivo', 'fue_notificado', 'especialidad', 'profesional', 'empleado']
         labels = {
             'fecha': 'Fecha (día/mes/año)',
             'hora': 'Hora (hh:mm)',
             'ci': 'Cédula de Identidad',
+            'paciente': 'Paciente',
         }
 
     def __init__(self, *args, **kwargs):
@@ -25,4 +26,13 @@ class TurnoForm(forms.ModelForm):
         if selected_especialidad:
             self.fields['profesional'].queryset = Profesional.objects.filter(especialidad=selected_especialidad)
         else:
-            self.fields['profesional'].queryset = Profesional.objects.none()
+            # Mostrar todos los profesionales si no hay especialidad seleccionada
+            self.fields['profesional'].queryset = Profesional.objects.all()
+        
+        # Hacer opcional el campo empleado
+        self.fields['empleado'].required = False
+        
+        # Si el usuario es paciente, hacer el campo paciente de solo lectura
+        if self.request and self.request.user.groups.filter(name__iexact='pacientes').exists():
+            self.fields['paciente'].disabled = True
+            self.fields['paciente'].widget.attrs['readonly'] = True

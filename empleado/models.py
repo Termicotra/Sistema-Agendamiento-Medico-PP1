@@ -12,6 +12,6 @@ class Empleado(models.Model):
     cargo = models.CharField(null=False, blank=False, max_length=128)
 
     def __str__(self):
-        return f"{self.nombre} {self.apellido} - {self.cargo}"
+        return f"{self.nombre} {self.apellido}"
     class Meta:
         db_table = 'empleado'

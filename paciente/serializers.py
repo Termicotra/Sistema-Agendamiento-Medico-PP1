@@ -16,7 +16,7 @@ class PacienteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Paciente
-        fields = '__all__'
+        exclude = ['user']  # Excluir el campo user
 
 class HistorialClinicoSerializer(serializers.ModelSerializer):
     paciente = PacienteSerializer(read_only=True)

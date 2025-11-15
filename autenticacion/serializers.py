@@ -135,18 +135,12 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 				'detail': 'Esta cuenta está desactivada.'
 			})
 		
-		# Llamar al método padre con las credenciales correctas
-		attrs['username'] = username
+		# Generar tokens - la información del usuario ya está en los claims del JWT
 		refresh = self.get_token(user)
 		
 		data = {
 			'refresh': str(refresh),
-			'access': str(refresh.access_token),
-			'username': user.username,
-			'email': user.email or "",
-			'roles': [g.name for g in user.groups.all()],
-			'first_name': user.first_name or "",
-			'last_name': user.last_name or ""
+			'access': str(refresh.access_token)
 		}
 		
 		return data
@@ -154,8 +148,10 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 	@classmethod
 	def get_token(cls, user):
 		token = super().get_token(user)
-		# Claims personalizados
+		# Claims personalizados incluidos en el JWT
 		token['username'] = user.username
 		token['email'] = user.email or ""
 		token['roles'] = [g.name for g in user.groups.all()]
+		token['first_name'] = user.first_name or ""
+		token['last_name'] = user.last_name or ""
 		return token
