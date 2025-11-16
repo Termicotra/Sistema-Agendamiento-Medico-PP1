@@ -32,6 +32,12 @@ class HistorialClinicoSerializer(serializers.ModelSerializer):
         model = HistorialClinico
         fields = '__all__'
 
+    def validate_fecha(self, value):
+        from datetime import date
+        if value < date.today():
+            raise serializers.ValidationError('No se puede ingresar una fecha pasada.')
+        return value
+
 class ReporteMedicoSerializer(serializers.ModelSerializer):
     paciente = PacienteSerializer(read_only=True)
     profesional = ProfesionalSerializer(read_only=True)
@@ -43,3 +49,9 @@ class ReporteMedicoSerializer(serializers.ModelSerializer):
     class Meta:
         model = ReporteMedico
         fields = '__all__'
+
+    def validate_fecha(self, value):
+        from datetime import date
+        if value < date.today():
+            raise serializers.ValidationError('No se puede ingresar una fecha pasada.')
+        return value

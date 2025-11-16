@@ -153,3 +153,10 @@ class DisponibilidadViewSet(viewsets.ModelViewSet):
     queryset = Disponibilidad.objects.all()
     serializer_class = DisponibilidadSerializer
     permission_classes = [DjangoModelPermissions]
+
+    def get_queryset(self):
+        queryset = Disponibilidad.objects.all()
+        profesional_id = self.request.query_params.get('profesional')
+        if profesional_id:
+            queryset = queryset.filter(profesional_id=profesional_id)
+        return queryset

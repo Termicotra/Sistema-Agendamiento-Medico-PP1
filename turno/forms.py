@@ -28,11 +28,16 @@ class TurnoForm(forms.ModelForm):
         else:
             # Mostrar todos los profesionales si no hay especialidad seleccionada
             self.fields['profesional'].queryset = Profesional.objects.all()
-        
         # Hacer opcional el campo empleado
         self.fields['empleado'].required = False
-        
         # Si el usuario es paciente, hacer el campo paciente de solo lectura
         if self.request and self.request.user.groups.filter(name__iexact='pacientes').exists():
             self.fields['paciente'].disabled = True
             self.fields['paciente'].widget.attrs['readonly'] = True
+
+    def clean_fecha(self):
+        fecha = self.cleaned_data.get('fecha')
+        from datetime import date
+        if fecha and fecha < date.today():
+            raise forms.ValidationError('No se puede ingresar una fecha pasada.')
+        return fecha

@@ -37,15 +37,16 @@ class TurnoSerializer(serializers.ModelSerializer):
         fields = '__all__'
     
     def validate(self, data):
-        """Validar disponibilidad del profesional y evitar turnos duplicados."""
+        """Validar disponibilidad del profesional, evitar turnos duplicados y fechas pasadas."""
+        from datetime import date
         profesional = data.get('profesional')
         paciente = data.get('paciente')
         fecha = data.get('fecha')
         hora = data.get('hora')
-        
+        if fecha and fecha < date.today():
+            raise serializers.ValidationError({'fecha': 'No se puede ingresar una fecha pasada.'})
         if not profesional or not fecha or not hora or not paciente:
             return data
-        
         # Validación 1: Evitar turnos duplicados
         turnos_existentes = Turno.objects.filter(
             paciente=paciente,
@@ -53,11 +54,9 @@ class TurnoSerializer(serializers.ModelSerializer):
             fecha=fecha,
             estado__in=['Pendiente', 'Activo']
         )
-        
         # Si estamos actualizando, excluir el turno actual
         if self.instance:
             turnos_existentes = turnos_existentes.exclude(pk=self.instance.pk)
-        
         if turnos_existentes.exists():
             raise serializers.ValidationError(
                 f"Ya existe un turno activo o pendiente para el paciente "

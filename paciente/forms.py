@@ -49,6 +49,13 @@ class HistorialClinicoForm(forms.ModelForm):
             'fecha': 'Fecha (día/mes/año)',
         }
 
+    def clean_fecha(self):
+        fecha = self.cleaned_data.get('fecha')
+        from datetime import date
+        if fecha and fecha < date.today():
+            raise forms.ValidationError('No se puede ingresar una fecha pasada.')
+        return fecha
+
 class ReporteMedicoForm(forms.ModelForm):
     class Meta:
         model = ReporteMedico
@@ -61,3 +68,10 @@ class ReporteMedicoForm(forms.ModelForm):
         labels = {
             'fecha': 'Fecha (día/mes/año)',
         }
+
+    def clean_fecha(self):
+        fecha = self.cleaned_data.get('fecha')
+        from datetime import date
+        if fecha and fecha < date.today():
+            raise forms.ValidationError('No se puede ingresar una fecha pasada.')
+        return fecha
