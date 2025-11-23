@@ -275,7 +275,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 class PacienteViewSet(viewsets.ModelViewSet):
     """
     API endpoint para gestionar pacientes.
-    Permite listar, crear, actualizar y eliminar pacientes del sistema.
+    Permite listar, crear, actualizar y eliminar pacientes del sistema de agendamiento.
     """
     queryset = Paciente.objects.all()
     serializer_class = PacienteSerializer

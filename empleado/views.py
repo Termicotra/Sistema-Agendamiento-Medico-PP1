@@ -74,7 +74,7 @@ from rest_framework.permissions import DjangoModelPermissions
 class EmpleadoViewSet(viewsets.ModelViewSet):
     """
     API endpoint para gestionar empleados.
-    Permite listar, crear, actualizar y eliminar empleados del sistema.
+    Permite listar, crear, actualizar y eliminar empleados del sistema de agendamiento.
     """
     queryset = Empleado.objects.all()
     serializer_class = EmpleadoSerializer

@@ -171,7 +171,9 @@ def marcar_turno_cancelado(request, pk):
 
 from rest_framework import viewsets
 from .models import Turno
+from .models import RecordatorioTurno
 from .serializers import TurnoSerializer
+from .serializers import RecordatorioTurnoSerializer
 
 from rest_framework.permissions import DjangoModelPermissions
 from django_filters.rest_framework import DjangoFilterBackend
