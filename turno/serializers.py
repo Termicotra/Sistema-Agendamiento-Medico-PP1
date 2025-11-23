@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.core.exceptions import ValidationError as DjangoValidationError
 from .models import Turno
+from .models import RecordatorioTurno
 from paciente.serializers import PacienteSerializer
 from profesional.serializers import ProfesionalSerializer
 from empleado.serializers import EmpleadoSerializer

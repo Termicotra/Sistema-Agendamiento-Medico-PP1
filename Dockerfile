@@ -4,7 +4,7 @@ FROM python:3.12-slim
 # Establece el directorio de trabajo
 WORKDIR /app
 
-# Copia los archivos de requerimientos e instala dependencias
+# Copia los archivos de requerimientos e instala dependencias requeridas
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 

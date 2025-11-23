@@ -202,3 +202,15 @@ class Turno(models.Model):
         verbose_name = 'Turno'
         verbose_name_plural = 'Turnos'
         ordering = ['-fecha', '-hora']
+
+class RecordatorioTurno(models.Model):
+    id_recordatorio = models.AutoField(primary_key=True)
+    turno = models.ForeignKey(Turno, on_delete=models.CASCADE, null=False, blank=False, related_name='recordatorios')
+    paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE, null=False, blank=False, related_name='recordatorios')
+    fecha_envio = models.DateField()
+    hora_envio = models.TimeField()
+    mensaje = models.TextField(max_length=512)
+    enviado = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"Recordatorio para {self.paciente.nombre} {self.paciente.apellido} - Turno {self.turno.id_turno} - Enviado: {self.enviado}"

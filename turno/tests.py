@@ -8,7 +8,7 @@ from empleado.models import Empleado
 class TurnoModelTest(TestCase):
     def setUp(self):
         self.profesional = Profesional.objects.create(
-            ci='111', nombre='Pro', apellido='Fesional', fecha_nacimiento='1980-01-01', direccion='Calle', telefono='123', especialidad='Cardiología', registro_profesional='REG1', otro_contacto='X')
+            ci='111', nombre='Pro', apellido='Fesional', fecha_nacimiento='1981-01-01', direccion='Calle', telefono='123', especialidad='Cardiología', registro_profesional='REG1', otro_contacto='X')
         self.paciente = Paciente.objects.create(
             ci='222', nombre='Pa', apellido='Ciente', fecha_nacimiento='1990-01-01', direccion='Calle', telefono='456', otro_contacto='Y')
         self.empleado = Empleado.objects.create(

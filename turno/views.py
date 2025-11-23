@@ -193,6 +193,14 @@ def marcar_turno_cancelado(request, pk):
     # Si no es POST, mostrar confirmación
     return render(request, 'cancelar_turno.html', {'turno': turno})
 
+from rest_framework import viewsets
+from .models import Turno
+from .models import RecordatorioTurno
+from .serializers import TurnoSerializer
+from .serializers import RecordatorioTurnoSerializer
+
+from rest_framework.permissions import DjangoModelPermissions
+from django_filters.rest_framework import DjangoFilterBackend
 
 class TurnoViewSet(viewsets.ModelViewSet):
     """

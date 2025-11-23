@@ -28,6 +28,7 @@ from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 from rest_framework.permissions import AllowAny
+from turno.views import RecordatorioTurnoViewSet
 
 schemaView = get_schema_view(
     openapi.Info(
@@ -40,7 +41,7 @@ schemaView = get_schema_view(
 )
 
 router = routers.DefaultRouter()
-#Viewsets
+#Viewsets de las APIs
 router.register(r'pacientes', paciente_views.PacienteViewSet)
 router.register(r'historialesClinicos', paciente_views.HistorialClinicoViewSet)
 router.register(r'reportesMedicos', paciente_views.ReporteMedicoViewSet)
@@ -48,7 +49,7 @@ router.register(r'profesionales', profesional_views.ProfesionalViewSet)
 router.register(r'disponibilidades', profesional_views.DisponibilidadViewSet)
 router.register(r'empleados', empleado_views.EmpleadoViewSet)
 router.register(r'turnos', turno_views.TurnoViewSet)
-
+router.register(r'recordatoriosTurno', RecordatorioTurnoViewSet)
 
 urlpatterns = [
     path('api/', include(router.urls)),
