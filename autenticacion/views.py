@@ -478,6 +478,8 @@ class LogoutView(generics.GenericAPIView):
                         outstanding = OutstandingToken.objects.get(jti=jti, user=request.user)
                         BlacklistedToken.objects.get_or_create(token=outstanding)
                     except OutstandingToken.DoesNotExist:
+                        # It's possible that the access token does not have a corresponding OutstandingToken.
+                        # In this case, we can safely ignore and continue.
                         pass
             except (ValueError, TypeError, KeyError):
                 pass
