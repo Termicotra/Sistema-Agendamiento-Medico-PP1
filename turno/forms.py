@@ -3,6 +3,7 @@ from turno.models import Turno
 from profesional.models import Profesional, Disponibilidad
 
 class TurnoForm(forms.ModelForm):
+    # Helper field for filtering professionals by specialty - not persisted to the database
     especialidad = forms.ChoiceField(label='Especialidad', required=False)
 
     class Meta:
