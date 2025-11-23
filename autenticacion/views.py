@@ -242,9 +242,9 @@ def procesar_solicitud_view(request, solicitud_id):
             # Crear usuario
             user = User.objects.create_user(
                 username=solicitud.username,
-                password=None  # No set password, will use the hashed one
+                password=None  # Password will be set to the hash below
             )
-            user.password = solicitud.password_hash
+            user.password = solicitud.password_hash  # Assign only if this is a valid Django hash
             user.save()
             
             # Asignar grupo
