@@ -164,7 +164,7 @@ class TurnoSerializer(serializers.ModelSerializer):
                         f"Horarios disponibles los {dia_turno}: {horarios}"
             })
     
-    def validate(self, data):
+    def validate(self, data):  # NOSONAR - DRF serializer validate must return data
         """Validar disponibilidad del profesional, evitar turnos duplicados, sobreposición y fechas pasadas."""
         profesional = data.get('profesional')
         paciente = data.get('paciente')
@@ -182,7 +182,7 @@ class TurnoSerializer(serializers.ModelSerializer):
         if estado in ['Cancelado', 'Completado']:
             return data
         
-        # Ejecutar todas las validaciones
+        # Ejecutar todas las validaciones (pueden lanzar ValidationError)
         self._validar_turnos_duplicados(profesional, paciente, fecha)
         self._validar_sobreposicion_profesional(profesional, paciente, fecha, hora)
         self._validar_sobreposicion_paciente(paciente, fecha, hora)

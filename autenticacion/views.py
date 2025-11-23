@@ -281,37 +281,7 @@ def procesar_solicitud_view(request, solicitud_id):
                     "error": "Debe seleccionar un grupo."
                 })
             
-            # Crear usuario
-            user = User.objects.create_user(
-                username=solicitud.username,
-                password=None  # Password will be set to the hash below
-            )
-            user.password = solicitud.password_hash  # Assign only if this is a valid Django hash
-            user.save()
-            
-            # Asignar grupo
-            group = Group.objects.get(name=group_name)
-            user.groups.add(group)
-            
-            # Buscar y enlazar con perfil existente
-            if group_name == "pacientes":
-                paciente = Paciente.objects.filter(ci=solicitud.ci).first()
-                if paciente:
-                    paciente.user = user
-                    paciente.save()
-            elif group_name == "profesionales":
-                profesional = Profesional.objects.filter(ci=solicitud.ci).first()
-                if profesional:
-                    profesional.user = user
-                    profesional.save()
-            # elif group_name == "administradores": no requiere perfil adicional
-            
-            # Marcar solicitud como aprobada
-            solicitud.estado = "aprobada"
-            solicitud.fecha_procesada = timezone.now()
-            solicitud.procesada_por = request.user
-            solicitud.save()
-            
+            _aprobar_solicitud(solicitud, group_name, request.user)
             return redirect("autenticacion:listar_solicitudes")
         
         elif accion == "rechazar":
@@ -618,6 +588,7 @@ class AprobarSolicitudAPIView(generics.GenericAPIView):
     """
     permission_classes = [IsAuthenticated]
     serializer_class = AprobarSolicitudSerializer
+    http_method_names = ['post', 'options']
     http_method_names = ['post', 'options']
     
     def _validate_solicitud(self, solicitud_id, user):
