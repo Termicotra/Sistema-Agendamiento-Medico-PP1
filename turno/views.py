@@ -242,6 +242,7 @@ class TurnoViewSet(viewsets.ModelViewSet):
     queryset = Turno.objects.all()
     serializer_class = TurnoSerializer
     permission_classes = [DjangoModelPermissions]
+    http_method_names = ['get', 'post', 'put', 'patch', 'delete', 'head', 'options']
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['estado', 'profesional', 'paciente', 'fecha', 'modalidad']
 
@@ -258,6 +259,7 @@ class RecordatorioTurnoViewSet(viewsets.ModelViewSet):
     queryset = RecordatorioTurno.objects.all()
     serializer_class = RecordatorioTurnoSerializer
     permission_classes = [DjangoModelPermissions]
+    http_method_names = ['get', 'post', 'put', 'patch', 'delete', 'head', 'options']
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['turno', 'paciente', 'enviado']
 

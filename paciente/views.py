@@ -4,6 +4,7 @@ from paciente.forms import PacienteForm, HistorialClinicoForm, ReporteMedicoForm
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db.models import Q
 from rest_framework import viewsets
+from rest_framework.permissions import DjangoModelPermissions
 from .serializers import PacienteSerializer, HistorialClinicoSerializer, ReporteMedicoSerializer
 from .filters import PacienteFilter, HistorialClinicoFilter
 from django_filters.rest_framework import DjangoFilterBackend
@@ -279,6 +280,8 @@ class PacienteViewSet(viewsets.ModelViewSet):
     """
     queryset = Paciente.objects.all()
     serializer_class = PacienteSerializer
+    permission_classes = [DjangoModelPermissions]
+    http_method_names = ['get', 'post', 'put', 'patch', 'delete', 'head', 'options']
     filter_backends = [DjangoFilterBackend]
     filterset_class = PacienteFilter
 
@@ -289,6 +292,8 @@ class HistorialClinicoViewSet(viewsets.ModelViewSet):
     """
     queryset = HistorialClinico.objects.all()
     serializer_class = HistorialClinicoSerializer
+    permission_classes = [DjangoModelPermissions]
+    http_method_names = ['get', 'post', 'put', 'patch', 'delete', 'head', 'options']
     filter_backends = [DjangoFilterBackend]
     filterset_class = HistorialClinicoFilter
 
@@ -299,3 +304,5 @@ class ReporteMedicoViewSet(viewsets.ModelViewSet):
     """
     queryset = ReporteMedico.objects.all()
     serializer_class = ReporteMedicoSerializer
+    permission_classes = [DjangoModelPermissions]
+    http_method_names = ['get', 'post', 'put', 'patch', 'delete', 'head', 'options']

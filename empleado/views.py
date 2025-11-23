@@ -76,3 +76,4 @@ class EmpleadoViewSet(viewsets.ModelViewSet):
     queryset = Empleado.objects.all()
     serializer_class = EmpleadoSerializer
     permission_classes = [DjangoModelPermissions]
+    http_method_names = ['get', 'post', 'put', 'patch', 'delete', 'head', 'options']

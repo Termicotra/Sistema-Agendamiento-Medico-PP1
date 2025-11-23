@@ -132,6 +132,7 @@ class RegisterAPIView(generics.GenericAPIView):
     """
     serializer_class = RegisterSerializer
     permission_classes = [AllowAny]
+    http_method_names = ['post', 'options']
 
     def post(self, request):
         serializer = self.get_serializer(data=request.data)
@@ -445,6 +446,7 @@ def profesional_dashboard(request):
 
 class PermissionsAPIView(APIView):
     permission_classes = [IsAuthenticated]
+    http_method_names = ['get', 'options']
 
     def get(self, request):
         user = request.user
@@ -491,6 +493,7 @@ class LogoutView(generics.GenericAPIView):
     serializer_class = LogoutSerializer
     # Solo permite el acceso a usuarios que ya están autenticados (para invalidar su propio token)
     permission_classes = (IsAuthenticated,)
+    http_method_names = ['post', 'options']
 
     def post(self, request):
         serializer = self.get_serializer(data=request.data)
@@ -541,6 +544,7 @@ class PerfilAPIView(generics.GenericAPIView):
     """
     permission_classes = [IsAuthenticated]
     serializer_class = PerfilSerializer
+    http_method_names = ['get', 'options']
     
     def get(self, request):
         user = request.user
@@ -571,6 +575,7 @@ class ChangePasswordAPIView(generics.GenericAPIView):
     """
     permission_classes = [IsAuthenticated]
     serializer_class = ChangePasswordSerializer
+    http_method_names = ['post', 'options']
     
     def post(self, request):
         serializer = self.get_serializer(data=request.data, context={'request': request})
@@ -613,6 +618,7 @@ class AprobarSolicitudAPIView(generics.GenericAPIView):
     """
     permission_classes = [IsAuthenticated]
     serializer_class = AprobarSolicitudSerializer
+    http_method_names = ['post', 'options']
     
     def _validate_solicitud(self, solicitud_id, user):
         """Valida que la solicitud existe y el usuario tiene permisos."""
@@ -685,6 +691,7 @@ class RechazarSolicitudAPIView(generics.GenericAPIView):
     permitiendo que el usuario pueda volver a intentar el registro con la misma cédula.
     """
     permission_classes = [IsAuthenticated]
+    http_method_names = ['post', 'options']
     
     def post(self, request, solicitud_id):
         # Verificar que el usuario sea administrador
@@ -737,6 +744,7 @@ class ListarSolicitudesAPIView(generics.GenericAPIView):
     """
     permission_classes = [IsAuthenticated]
     serializer_class = SolicitudRegistroSerializer
+    http_method_names = ['get', 'options']
     
     def get(self, request):
         # Verificar que el usuario sea administrador

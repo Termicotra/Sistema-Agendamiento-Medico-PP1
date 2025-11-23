@@ -140,6 +140,7 @@ class ProfesionalViewSet(viewsets.ModelViewSet):
     queryset = Profesional.objects.all()
     serializer_class = ProfesionalSerializer
     permission_classes = [DjangoModelPermissions]
+    http_method_names = ['get', 'post', 'put', 'patch', 'delete', 'head', 'options']
 
 class DisponibilidadViewSet(viewsets.ModelViewSet):
     """
@@ -149,6 +150,7 @@ class DisponibilidadViewSet(viewsets.ModelViewSet):
     queryset = Disponibilidad.objects.all()
     serializer_class = DisponibilidadSerializer
     permission_classes = [DjangoModelPermissions]
+    http_method_names = ['get', 'post', 'put', 'patch', 'delete', 'head', 'options']
 
     def get_queryset(self):
         queryset = Disponibilidad.objects.all()
