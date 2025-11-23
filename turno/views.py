@@ -43,6 +43,44 @@ def marcar_turno_activo(request, pk):
         turno.save()
     return redirect('solicitudes_turno')
 
+
+def _extract_validation_error_message(error):
+    """Extrae el mensaje de error de una ValidationError."""
+    if hasattr(error, 'message_dict'):
+        return ' '.join([
+            f"{field}: {', '.join(errors)}" 
+            for field, errors in error.message_dict.items()
+        ])
+    if hasattr(error, 'messages'):
+        return ' '.join(error.messages)
+    return str(error)
+
+
+def _extract_form_errors(form):
+    """Extrae mensajes de error del formulario."""
+    if form.errors:
+        return ' '.join([
+            f"{field}: {', '.join(errors)}" 
+            for field, errors in form.errors.items()
+        ])
+    return ''
+
+
+def _get_initial_paciente_data(request):
+    """Obtiene datos iniciales del paciente para el formulario."""
+    from paciente.models import Paciente
+    
+    initial_data = {}
+    if request.user.groups.filter(name__iexact='pacientes').exists():
+        if hasattr(request.user, 'paciente'):
+            initial_data['paciente'] = request.user.paciente
+        else:
+            paciente = Paciente.objects.filter(ci=request.user.username).first()
+            if paciente:
+                initial_data['paciente'] = paciente
+    return initial_data
+
+
 @login_required
 @permission_required('turno.add_turno', raise_exception=True)
 def crear_turno(request):
@@ -50,7 +88,6 @@ def crear_turno(request):
     Vista para crear un nuevo turno solo para el paciente autenticado, 
     filtrando profesionales por especialidad y validando disponibilidad.
     """
-    from paciente.models import Paciente
     from django.core.exceptions import ValidationError
     
     mensaje_error = ''
@@ -60,44 +97,49 @@ def crear_turno(request):
         if form.is_valid():
             try:
                 turno = form.save(commit=False)
-                turno.full_clean()  # Ejecuta validaciones del modelo
+                turno.full_clean()
                 turno.save()
                 return redirect('listar_turnos')
             except ValidationError as e:
-                # Extraer mensajes de error de ValidationError
-                if hasattr(e, 'message_dict'):
-                    mensaje_error = ' '.join([
-                        f"{field}: {', '.join(errors)}" 
-                        for field, errors in e.message_dict.items()
-                    ])
-                elif hasattr(e, 'messages'):
-                    mensaje_error = ' '.join(e.messages)
-                else:
-                    mensaje_error = str(e)
+                mensaje_error = _extract_validation_error_message(e)
         else:
-            # Capturar errores de validación del formulario
-            if form.errors:
-                mensaje_error = ' '.join([
-                    f"{field}: {', '.join(errors)}" 
-                    for field, errors in form.errors.items()
-                ])
+            mensaje_error = _extract_form_errors(form)
     else:
-        # Si el usuario es paciente, pre-seleccionar su paciente
-        initial_data = {}
-        if request.user.groups.filter(name__iexact='pacientes').exists():
-            if hasattr(request.user, 'paciente'):
-                initial_data['paciente'] = request.user.paciente
-            else:
-                paciente = Paciente.objects.filter(ci=request.user.username).first()
-                if paciente:
-                    initial_data['paciente'] = paciente
-        
+        initial_data = _get_initial_paciente_data(request)
         form = TurnoForm(initial=initial_data, request=request)
     
     return render(request, 'crear_turno.html', {
         'form': form, 
         'mensaje_error': mensaje_error
     })
+
+def _get_paciente_from_user(user):
+    """Obtiene el paciente asociado al usuario."""
+    if hasattr(user, 'paciente'):
+        return user.paciente
+    from paciente.models import Paciente
+    return Paciente.objects.filter(ci=user.username).first()
+
+def _filter_turnos_by_estado(queryset, mostrar_ocultos):
+    """Filtra turnos según el parámetro mostrar_ocultos."""
+    if mostrar_ocultos:
+        return queryset.filter(estado__in=[ESTADO_PENDIENTE, ESTADO_CANCELADO])
+    return queryset.exclude(estado__in=[ESTADO_PENDIENTE, ESTADO_CANCELADO])
+
+def _apply_search_query(queryset, query):
+    """Aplica filtros de búsqueda al queryset de turnos."""
+    if not query:
+        return queryset
+    return queryset.filter(
+        Q(fecha__icontains=query) |
+        Q(estado__icontains=query) |
+        Q(profesional__nombre__icontains=query) |
+        Q(profesional__apellido__icontains=query) |
+        Q(paciente__nombre__icontains=query) |
+        Q(paciente__apellido__icontains=query) |
+        Q(empleado__nombre__icontains=query) |
+        Q(empleado__apellido__icontains=query)
+    )
 
 @login_required
 @permission_required('turno.view_turno', raise_exception=True)
@@ -106,38 +148,19 @@ def listar_turnos(request):
     Vista para listar turnos. Si el usuario es del grupo 'pacientes', solo ve sus propios turnos.
     """
     mostrar_ocultos = request.GET.get('mostrar_ocultos', '') == '1'
+    
     if request.user.groups.filter(name__iexact='pacientes').exists():
-        if hasattr(request.user, 'paciente'):
-            paciente = request.user.paciente
-        else:
-            from paciente.models import Paciente
-            paciente = Paciente.objects.filter(ci=request.user.username).first()
+        paciente = _get_paciente_from_user(request.user)
         if paciente:
-            if mostrar_ocultos:
-                turnos = Turno.objects.filter(paciente=paciente, estado__in=[ESTADO_PENDIENTE, ESTADO_CANCELADO])
-            else:
-                turnos = Turno.objects.filter(paciente=paciente).exclude(estado__in=[ESTADO_PENDIENTE, ESTADO_CANCELADO])
+            turnos = _filter_turnos_by_estado(Turno.objects.filter(paciente=paciente), mostrar_ocultos)
         else:
             turnos = Turno.objects.none()
         return render(request, 'listar_turnos.html', {'turnos': turnos, 'q': '', 'mostrar_ocultos': mostrar_ocultos})
-    else:
-        query = request.GET.get('q', '')
-        if mostrar_ocultos:
-            turnos = Turno.objects.filter(estado__in=[ESTADO_PENDIENTE, ESTADO_CANCELADO])
-        else:
-            turnos = Turno.objects.exclude(estado__in=[ESTADO_PENDIENTE, ESTADO_CANCELADO])
-        if query:
-            turnos = turnos.filter(
-                Q(fecha__icontains=query) |
-                Q(estado__icontains=query) |
-                Q(profesional__nombre__icontains=query) |
-                Q(profesional__apellido__icontains=query) |
-                Q(paciente__nombre__icontains=query) |
-                Q(paciente__apellido__icontains=query) |
-                Q(empleado__nombre__icontains=query) |
-                Q(empleado__apellido__icontains=query)
-            )
-        return render(request, 'listar_turnos.html', {'turnos': turnos, 'q': query, 'mostrar_ocultos': mostrar_ocultos})
+    
+    query = request.GET.get('q', '')
+    turnos = _filter_turnos_by_estado(Turno.objects.all(), mostrar_ocultos)
+    turnos = _apply_search_query(turnos, query)
+    return render(request, 'listar_turnos.html', {'turnos': turnos, 'q': query, 'mostrar_ocultos': mostrar_ocultos})
 
 @login_required
 @permission_required('turno.delete_turno', raise_exception=True)
@@ -194,10 +217,8 @@ def marcar_turno_cancelado(request, pk):
     return render(request, 'cancelar_turno.html', {'turno': turno})
 
 from rest_framework import viewsets
-from .models import Turno
-from .models import RecordatorioTurno
-from .serializers import TurnoSerializer
-from .serializers import RecordatorioTurnoSerializer
+from .models import Turno, RecordatorioTurno
+from .serializers import TurnoSerializer, RecordatorioTurnoSerializer
 
 from rest_framework.permissions import DjangoModelPermissions
 from django_filters.rest_framework import DjangoFilterBackend
@@ -223,4 +244,20 @@ class TurnoViewSet(viewsets.ModelViewSet):
     permission_classes = [DjangoModelPermissions]
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['estado', 'profesional', 'paciente', 'fecha', 'modalidad']
+
+class RecordatorioTurnoViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint para gestionar recordatorios de turnos.
+    Permite listar, crear, actualizar y eliminar recordatorios.
+    
+    Filtros disponibles por query params:
+    - turno: Filtrar por ID de turno
+    - paciente: Filtrar por ID de paciente
+    - enviado: Filtrar por estado de envío (true/false)
+    """
+    queryset = RecordatorioTurno.objects.all()
+    serializer_class = RecordatorioTurnoSerializer
+    permission_classes = [DjangoModelPermissions]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['turno', 'paciente', 'enviado']
 

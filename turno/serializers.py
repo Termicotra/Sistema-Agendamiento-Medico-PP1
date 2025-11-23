@@ -189,3 +189,11 @@ class TurnoSerializer(serializers.ModelSerializer):
         self._validar_disponibilidad_profesional(profesional, fecha, hora)
         
         return data
+
+class RecordatorioTurnoSerializer(serializers.ModelSerializer):
+    """Serializer para RecordatorioTurno."""
+    
+    class Meta:
+        model = RecordatorioTurno
+        fields = '__all__'
+        read_only_fields = ['id_recordatorio']

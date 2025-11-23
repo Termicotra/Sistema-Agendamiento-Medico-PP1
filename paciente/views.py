@@ -8,6 +8,59 @@ from .serializers import PacienteSerializer, HistorialClinicoSerializer, Reporte
 from .filters import PacienteFilter, HistorialClinicoFilter
 from django_filters.rest_framework import DjangoFilterBackend
 
+def _get_paciente_for_user(user):
+    """Obtiene el paciente asociado al usuario actual."""
+    if hasattr(user, 'paciente'):
+        return [user.paciente]
+    return list(Paciente.objects.filter(ci=user.username)[:1])
+
+def _get_historiales_for_user(user):
+    """Obtiene historiales del paciente asociado al usuario."""
+    if hasattr(user, 'paciente'):
+        return HistorialClinico.objects.filter(paciente=user.paciente)
+    return HistorialClinico.objects.filter(paciente__ci=user.username)
+
+def _build_paciente_filters(query):
+    """Construye filtros de búsqueda para pacientes."""
+    partes = query.replace('+', ' ').split()
+    
+    if len(partes) == 1 and partes[0].isdigit():
+        return Q(ci__icontains=partes[0])
+    
+    if len(partes) > 1:
+        filtros = Q()
+        for parte in partes:
+            if parte.isdigit():
+                filtros |= Q(ci__icontains=parte)
+            else:
+                filtros |= Q(nombre__icontains=parte) | Q(apellido__icontains=parte)
+        return filtros
+    
+    return Q(nombre__icontains=query) | Q(apellido__icontains=query) | Q(ci__icontains=query)
+
+def _build_historial_filters(query):
+    """Construye filtros de búsqueda para historiales clínicos."""
+    partes = query.replace('+', ' ').split()
+    
+    if len(partes) == 1 and partes[0].isdigit():
+        return Q(paciente__ci__icontains=partes[0])
+    
+    if len(partes) > 1:
+        filtros = Q()
+        for parte in partes:
+            if parte.isdigit():
+                filtros |= Q(paciente__ci__icontains=parte)
+            else:
+                filtros |= Q(paciente__nombre__icontains=parte) | Q(paciente__apellido__icontains=parte)
+        return filtros
+    
+    return (Q(paciente__nombre__icontains=query) |
+            Q(paciente__apellido__icontains=query) |
+            Q(paciente__ci__icontains=query) |
+            Q(profesional__nombre__icontains=query) |
+            Q(profesional__apellido__icontains=query) |
+            Q(fecha__icontains=query))
+
 @login_required
 @permission_required('paciente.add_paciente', raise_exception=True)
 def crear_paciente(request):
@@ -30,33 +83,14 @@ def listar_pacientes(request):
     Vista para listar pacientes. Si el usuario es del grupo 'Pacientes', solo ve su propio perfil.
     """
     if request.user.groups.filter(name='Pacientes').exists():
-        if hasattr(request.user, 'paciente'):
-            pacientes = [request.user.paciente]
-        else:
-            pacientes = Paciente.objects.filter(ci=request.user.username)[:1]
+        pacientes = _get_paciente_for_user(request.user)
         return render(request, 'listar_pacientes.html', {'pacientes': pacientes, 'q': ''})
-    else:
-        query = request.GET.get('q', '').strip()
-        pacientes = Paciente.objects.all()
-        if query:
-            partes = query.replace('+', ' ').split()
-            if len(partes) == 1 and partes[0].isdigit():
-                pacientes = pacientes.filter(ci__icontains=partes[0])
-            elif len(partes) > 1:
-                filtros = Q()
-                for parte in partes:
-                    if parte.isdigit():
-                        filtros |= Q(ci__icontains=parte)
-                    else:
-                        filtros |= Q(nombre__icontains=parte) | Q(apellido__icontains=parte)
-                pacientes = pacientes.filter(filtros)
-            else:
-                pacientes = pacientes.filter(
-                    Q(nombre__icontains=query) |
-                    Q(apellido__icontains=query) |
-                    Q(ci__icontains=query)
-                )
-        return render(request, 'listar_pacientes.html', {'pacientes': pacientes, 'q': query})
+    
+    query = request.GET.get('q', '').strip()
+    pacientes = Paciente.objects.all()
+    if query:
+        pacientes = pacientes.filter(_build_paciente_filters(query))
+    return render(request, 'listar_pacientes.html', {'pacientes': pacientes, 'q': query})
 
 @login_required
 @permission_required('paciente.delete_paciente', raise_exception=True)
@@ -93,36 +127,14 @@ def listar_historiales(request):
     Vista para listar historiales. Si el usuario es del grupo 'Pacientes', solo ve sus propios historiales.
     """
     if request.user.groups.filter(name='Pacientes').exists():
-        if hasattr(request.user, 'paciente'):
-            historiales = HistorialClinico.objects.filter(paciente=request.user.paciente)
-        else:
-            historiales = HistorialClinico.objects.filter(paciente__ci=request.user.username)
+        historiales = _get_historiales_for_user(request.user)
         return render(request, 'listar_historiales.html', {'historiales': historiales, 'q': ''})
-    else:
-        query = request.GET.get('q', '').strip()
-        historiales = HistorialClinico.objects.select_related('paciente', 'profesional').all()
-        if query:
-            partes = query.replace('+', ' ').split()
-            if len(partes) == 1 and partes[0].isdigit():
-                historiales = historiales.filter(paciente__ci__icontains=partes[0])
-            elif len(partes) > 1:
-                filtros = Q()
-                for parte in partes:
-                    if parte.isdigit():
-                        filtros |= Q(paciente__ci__icontains=parte)
-                    else:
-                        filtros |= Q(paciente__nombre__icontains=parte) | Q(paciente__apellido__icontains=parte)
-                historiales = historiales.filter(filtros)
-            else:
-                historiales = historiales.filter(
-                    Q(paciente__nombre__icontains=query) |
-                    Q(paciente__apellido__icontains=query) |
-                    Q(paciente__ci__icontains=query) |
-                    Q(profesional__nombre__icontains=query) |
-                    Q(profesional__apellido__icontains=query) |
-                    Q(fecha__icontains=query)
-                )
-        return render(request, 'listar_historiales.html', {'historiales': historiales, 'q': query})
+    
+    query = request.GET.get('q', '').strip()
+    historiales = HistorialClinico.objects.select_related('paciente', 'profesional').all()
+    if query:
+        historiales = historiales.filter(_build_historial_filters(query))
+    return render(request, 'listar_historiales.html', {'historiales': historiales, 'q': query})
 
 @login_required
 @permission_required('paciente.add_historialclinico', raise_exception=True)

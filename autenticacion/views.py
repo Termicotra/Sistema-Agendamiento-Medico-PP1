@@ -183,6 +183,21 @@ def register_view(request):
         form = RegisterForm()
     return render(request, "register.html", {"form": form})
 
+def _get_perfil_by_ci(ci):
+    """Busca un perfil existente (Paciente o Profesional) por cédula."""
+    from paciente.models import Paciente
+    from profesional.models import Profesional
+    
+    paciente = Paciente.objects.filter(ci=ci).first()
+    if paciente:
+        return {"tipo": "Paciente", "datos": paciente}
+    
+    profesional = Profesional.objects.filter(ci=ci).first()
+    if profesional:
+        return {"tipo": "Profesional", "datos": profesional}
+    
+    return None
+
 @login_required
 def listar_solicitudes_view(request):
     """Vista para que el administrador vea las solicitudes pendientes."""
@@ -196,34 +211,60 @@ def detalle_solicitud_view(request, solicitud_id):
     """Vista para ver el detalle de una solicitud y aprobar/rechazar."""
     if not request.user.groups.filter(name__iexact="administradores").exists():
         return redirect("menu_principal")
-    from paciente.models import Paciente
-    from profesional.models import Profesional
     from django.shortcuts import get_object_or_404
     
     solicitud = get_object_or_404(SolicitudRegistro, id=solicitud_id)
-    perfil_existente = None
-    
-    # Buscar datos existentes del paciente/profesional con esta cédula
-    paciente = Paciente.objects.filter(ci=solicitud.ci).first()
-    profesional = Profesional.objects.filter(ci=solicitud.ci).first()
-    
-    if paciente:
-        perfil_existente = {"tipo": "Paciente", "datos": paciente}
-    elif profesional:
-        perfil_existente = {"tipo": "Profesional", "datos": profesional}
+    perfil_existente = _get_perfil_by_ci(solicitud.ci)
     
     return render(request, "detalle_solicitud.html", {
         "solicitud": solicitud,
         "perfil_existente": perfil_existente
     })
 
+def _create_user_from_solicitud(solicitud, group_name):
+    """Crea un usuario a partir de una solicitud y lo asigna a un grupo."""
+    user = User.objects.create_user(
+        username=solicitud.username,
+        password=None
+    )
+    user.password = solicitud.password_hash
+    user.save()
+    
+    group = Group.objects.get(name=group_name)
+    user.groups.add(group)
+    return user
+
+def _link_user_to_profile(user, group_name, ci):
+    """Enlaza el usuario con su perfil existente (Paciente o Profesional)."""
+    from paciente.models import Paciente
+    from profesional.models import Profesional
+    
+    if group_name == "pacientes":
+        paciente = Paciente.objects.filter(ci=ci).first()
+        if paciente:
+            paciente.user = user
+            paciente.save()
+    elif group_name == "profesionales":
+        profesional = Profesional.objects.filter(ci=ci).first()
+        if profesional:
+            profesional.user = user
+            profesional.save()
+
+def _aprobar_solicitud(solicitud, group_name, request_user):
+    """Procesa la aprobación de una solicitud."""
+    user = _create_user_from_solicitud(solicitud, group_name)
+    _link_user_to_profile(user, group_name, solicitud.ci)
+    
+    solicitud.estado = "aprobada"
+    solicitud.fecha_procesada = timezone.now()
+    solicitud.procesada_por = request_user
+    solicitud.save()
+
 @login_required
 def procesar_solicitud_view(request, solicitud_id):
     """Vista para aprobar o rechazar una solicitud."""
     if not request.user.groups.filter(name__iexact="administradores").exists():
         return redirect("menu_principal")
-    from paciente.models import Paciente
-    from profesional.models import Profesional
     from django.shortcuts import get_object_or_404
     
     solicitud = get_object_or_404(SolicitudRegistro, id=solicitud_id)
@@ -239,46 +280,24 @@ def procesar_solicitud_view(request, solicitud_id):
                     "error": "Debe seleccionar un grupo."
                 })
             
-            # Crear usuario
-            user = User.objects.create_user(
-                username=solicitud.username,
-                password=None  # No set password, will use the hashed one
-            )
-            user.password = solicitud.password_hash
-            user.save()
-            
-            # Asignar grupo
-            group = Group.objects.get(name=group_name)
-            user.groups.add(group)
-            
-            # Buscar y enlazar con perfil existente
-            if group_name == "pacientes":
-                paciente = Paciente.objects.filter(ci=solicitud.ci).first()
-                if paciente:
-                    paciente.user = user
-                    paciente.save()
-            elif group_name == "profesionales":
-                profesional = Profesional.objects.filter(ci=solicitud.ci).first()
-                if profesional:
-                    profesional.user = user
-                    profesional.save()
-            # elif group_name == "administradores": no requiere perfil adicional
-            
-            # Marcar solicitud como aprobada
-            solicitud.estado = "aprobada"
-            solicitud.fecha_procesada = timezone.now()
-            solicitud.procesada_por = request.user
-            solicitud.save()
-            
+            _aprobar_solicitud(solicitud, group_name, request.user)
             return redirect("autenticacion:listar_solicitudes")
         
         elif accion == "rechazar":
-            # Eliminar la solicitud en lugar de marcarla como rechazada
             solicitud.delete()
             return redirect("autenticacion:listar_solicitudes")
     
     return redirect("autenticacion:detalle_solicitud", solicitud_id=solicitud_id)
 
+def _get_dashboard_for_user(user):
+    """Determina el dashboard apropiado según los grupos del usuario."""
+    if user.groups.filter(name="administradores").exists():
+        return "menu_principal"
+    if user.groups.filter(name="profesionales").exists():
+        return "profesional_dashboard"
+    if user.groups.filter(name="pacientes").exists():
+        return "paciente_dashboard"
+    return "menu_principal"
 
 def login_view(request):
     from django.contrib.auth.models import User
@@ -290,16 +309,8 @@ def login_view(request):
             user = authenticate(request, username=u, password=p)
             if user is not None:
                 login(request, user)
-                if user.groups.filter(name="administradores").exists():
-                    return redirect("menu_principal")
-                if user.groups.filter(name="profesionales").exists():
-                    return redirect("profesional_dashboard")
-                if user.groups.filter(name="pacientes").exists():
-                    return redirect("paciente_dashboard")
-                # default
-                return redirect("menu_principal")
-            else:
-                return render(request, "login.html", {"form": form, "error": "Credenciales inválidas"})
+                return redirect(_get_dashboard_for_user(user))
+            return render(request, "login.html", {"form": form, "error": "Credenciales inválidas"})
     else:
         form = LoginForm()
     return render(request, "login.html", {"form": form})
@@ -571,81 +582,55 @@ class AprobarSolicitudAPIView(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = AprobarSolicitudSerializer
     
-    def post(self, request, solicitud_id):
-        # Verificar que el usuario sea administrador
-        if not request.user.groups.filter(name__iexact="administradores").exists():
-            return Response({
+    def _validate_solicitud(self, solicitud_id, user):
+        """Valida que la solicitud existe y el usuario tiene permisos."""
+        if not user.groups.filter(name__iexact="administradores").exists():
+            return None, Response({
                 "detail": "No tienes permisos para aprobar solicitudes."
             }, status=status.HTTP_403_FORBIDDEN)
         
-        # Buscar solicitud
         try:
             solicitud = SolicitudRegistro.objects.get(id=solicitud_id)
         except SolicitudRegistro.DoesNotExist:
-            return Response({
+            return None, Response({
                 "detail": "Solicitud no encontrada."
             }, status=status.HTTP_404_NOT_FOUND)
         
-        # Validar que esté pendiente
         if solicitud.estado != 'pendiente':
-            return Response({
+            return None, Response({
                 "detail": f"La solicitud ya fue {solicitud.estado}."
             }, status=status.HTTP_400_BAD_REQUEST)
+        
+        return solicitud, None
+    
+    def _extract_serializer_errors(self, serializer):
+        """Extrae mensajes de error del serializer."""
+        errors = []
+        for field, messages in serializer.errors.items():
+            if isinstance(messages, list):
+                errors.extend(messages)
+            else:
+                errors.append(str(messages))
+        return errors[0] if len(errors) == 1 else "\n".join(errors)
+    
+    def post(self, request, solicitud_id):
+        solicitud, error_response = self._validate_solicitud(solicitud_id, request.user)
+        if error_response:
+            return error_response
         
         # Validar datos
         serializer = self.get_serializer(data=request.data)
         if not serializer.is_valid():
-            # Extraer solo los mensajes de error sin el nombre del campo
-            errors = []
-            for field, messages in serializer.errors.items():
-                if isinstance(messages, list):
-                    errors.extend(messages)
-                else:
-                    errors.append(str(messages))
-            
             return Response({
-                "detail": errors[0] if len(errors) == 1 else "\n".join(errors)
+                "detail": self._extract_serializer_errors(serializer)
             }, status=status.HTTP_400_BAD_REQUEST)
         
         group_name = serializer.validated_data['group']
-        
-        # Crear usuario
-        from paciente.models import Paciente
-        from profesional.models import Profesional
-        
-        user = User.objects.create_user(
-            username=solicitud.username,
-            password=None
-        )
-        user.password = solicitud.password_hash
-        user.save()
-        
-        # Asignar grupo
-        group = Group.objects.get(name=group_name)
-        user.groups.add(group)
-        
-        # Buscar y enlazar con perfil existente
-        if group_name == "pacientes":
-            paciente = Paciente.objects.filter(ci=solicitud.ci).first()
-            if paciente:
-                paciente.user = user
-                paciente.save()
-        elif group_name == "profesionales":
-            profesional = Profesional.objects.filter(ci=solicitud.ci).first()
-            if profesional:
-                profesional.user = user
-                profesional.save()
-        # elif group_name == "administradores": no requiere perfil adicional
-        
-        # Marcar solicitud como aprobada
-        solicitud.estado = "aprobada"
-        solicitud.fecha_procesada = timezone.now()
-        solicitud.procesada_por = request.user
-        solicitud.save()
+        _aprobar_solicitud(solicitud, group_name, request.user)
         
         return Response({
             "detail": "Solicitud aprobada exitosamente.",
-            "username": user.username,
+            "username": solicitud.username,
             "group": group_name
         }, status=status.HTTP_200_OK)
 
