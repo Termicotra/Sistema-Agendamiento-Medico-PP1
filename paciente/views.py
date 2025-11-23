@@ -1,10 +1,12 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect, get_object_or_404
 from paciente.models import Paciente, HistorialClinico, ReporteMedico
-from paciente.forms import PacienteForm
+from paciente.forms import PacienteForm, HistorialClinicoForm, ReporteMedicoForm
 from django.contrib.auth.decorators import login_required, permission_required
-from django.shortcuts import redirect
-from django.http import HttpResponse
 from django.db.models import Q
+from rest_framework import viewsets
+from .serializers import PacienteSerializer, HistorialClinicoSerializer, ReporteMedicoSerializer
+from .filters import PacienteFilter, HistorialClinicoFilter
+from django_filters.rest_framework import DjangoFilterBackend
 
 @login_required
 @permission_required('paciente.add_paciente', raise_exception=True)
@@ -62,7 +64,7 @@ def eliminar_paciente(request, pk):
     """
     Vista para eliminar un paciente específico.
     """
-    paciente = Paciente.objects.get(pk=pk)
+    paciente = get_object_or_404(Paciente, pk=pk)
     if request.method == 'POST':
         paciente.delete()
         return redirect('listar_pacientes')
@@ -74,7 +76,7 @@ def editar_paciente(request, pk):
     """
     Vista para editar los datos de un paciente existente.
     """
-    paciente = Paciente.objects.get(pk=pk)
+    paciente = get_object_or_404(Paciente, pk=pk)
     if request.method == 'POST':
         form = PacienteForm(request.POST, instance=paciente)
         if form.is_valid():
@@ -128,7 +130,6 @@ def crear_historial(request):
     """
     Vista para crear un nuevo historial clínico para un paciente.
     """
-    from paciente.forms import HistorialClinicoForm
     if request.method == 'POST':
         form = HistorialClinicoForm(request.POST)
         if form.is_valid():
@@ -144,8 +145,7 @@ def editar_historial(request, pk):
     """
     Vista para editar un historial clínico existente.
     """
-    from paciente.forms import HistorialClinicoForm
-    historial = HistorialClinico.objects.get(pk=pk)
+    historial = get_object_or_404(HistorialClinico, pk=pk)
     if request.method == 'POST':
         form = HistorialClinicoForm(request.POST, instance=historial)
         if form.is_valid():
@@ -161,7 +161,7 @@ def eliminar_historial(request, pk):
     """
     Vista para eliminar un historial clínico específico.
     """
-    historial = HistorialClinico.objects.get(pk=pk)
+    historial = get_object_or_404(HistorialClinico, pk=pk)
     if request.method == 'POST':
         historial.delete()
         return redirect('listar_historiales')
@@ -191,7 +191,6 @@ def crear_reporte(request):
     """
     Vista para crear un nuevo reporte médico para un paciente.
     """
-    from paciente.forms import ReporteMedicoForm
     if request.method == 'POST':
         form = ReporteMedicoForm(request.POST)
         if form.is_valid():
@@ -207,8 +206,7 @@ def editar_reporte(request, pk):
     """
     Vista para editar un reporte médico existente.
     """
-    from paciente.forms import ReporteMedicoForm
-    reporte = ReporteMedico.objects.get(pk=pk)
+    reporte = get_object_or_404(ReporteMedico, pk=pk)
     if request.method == 'POST':
         form = ReporteMedicoForm(request.POST, instance=reporte)
         if form.is_valid():
@@ -224,7 +222,7 @@ def eliminar_reporte(request, pk):
     """
     Vista para eliminar un reporte médico específico.
     """
-    reporte = ReporteMedico.objects.get(pk=pk)
+    reporte = get_object_or_404(ReporteMedico, pk=pk)
     if request.method == 'POST':
         reporte.delete()
         return redirect('listar_reportes')
@@ -260,16 +258,6 @@ def listar_reportes_medicos(request):
             )
     return render(request, 'listar_reportes_medicos.html', {'reportes': reportes, 'q': query})
 
-from rest_framework import viewsets
-from .models import Paciente
-from .models import HistorialClinico
-from .models import ReporteMedico
-from .serializers import PacienteSerializer
-from .serializers import HistorialClinicoSerializer
-from .serializers import ReporteMedicoSerializer 
-from .filters import PacienteFilter
-from .filters import HistorialClinicoFilter
-from django_filters.rest_framework import DjangoFilterBackend
 
 
 class PacienteViewSet(viewsets.ModelViewSet):

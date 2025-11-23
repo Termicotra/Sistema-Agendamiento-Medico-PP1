@@ -6,6 +6,9 @@ from paciente.models import Paciente
 from profesional.models import Profesional
 from empleado.models import Empleado
 
+# Constantes de mensajes
+ERROR_CEDULA_USUARIO_ASIGNADO = "Esta cédula ya tiene un usuario asignado."
+
 
 class ChangePasswordSerializer(serializers.Serializer):
 	"""Serializer para cambiar contraseña del usuario autenticado."""
@@ -90,11 +93,11 @@ class RegisterSerializer(serializers.Serializer):
 		
 		# Verificar que la cédula no tenga ya un usuario asignado
 		if paciente and paciente.user:
-			raise serializers.ValidationError("Esta cédula ya tiene un usuario asignado.")
+			raise serializers.ValidationError(ERROR_CEDULA_USUARIO_ASIGNADO)
 		if profesional and profesional.user:
-			raise serializers.ValidationError("Esta cédula ya tiene un usuario asignado.")
+			raise serializers.ValidationError(ERROR_CEDULA_USUARIO_ASIGNADO)
 		if empleado and empleado.user:
-			raise serializers.ValidationError("Esta cédula ya tiene un usuario asignado.")
+			raise serializers.ValidationError(ERROR_CEDULA_USUARIO_ASIGNADO)
 		
 		return value
 

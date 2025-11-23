@@ -11,6 +11,19 @@ from rest_framework.permissions import DjangoModelPermissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
+from django_filters.rest_framework import DjangoFilterBackend
+
+# Constantes de estado
+ESTADO_PENDIENTE = 'Pendiente'
+ESTADO_ACTIVO = 'Activo'
+ESTADO_COMPLETADO = 'Completado'
+ESTADO_CANCELADO = 'Cancelado'
+
+# Constantes de estado
+ESTADO_PENDIENTE = 'Pendiente'
+ESTADO_ACTIVO = 'Activo'
+ESTADO_COMPLETADO = 'Completado'
+ESTADO_CANCELADO = 'Cancelado'
 
 @login_required
 @permission_required('turno.view_turno', raise_exception=True)
@@ -30,21 +43,17 @@ def marcar_turno_activo(request, pk):
         turno.save()
     return redirect('solicitudes_turno')
 
-ESTADO_PENDIENTE = 'Pendiente'
-ESTADO_ACTIVO = 'Activo'
-ESTADO_COMPLETADO = 'Completado'
-ESTADO_CANCELADO = 'Cancelado'
-
 @login_required
 @permission_required('turno.add_turno', raise_exception=True)
 def crear_turno(request):
     """
-    Vista para crear un nuevo turno solo para el paciente autenticado, filtrando profesionales por especialidad y validando disponibilidad.
+    Vista para crear un nuevo turno solo para el paciente autenticado, 
+    filtrando profesionales por especialidad y validando disponibilidad.
     """
     from paciente.models import Paciente
-    from profesional.models import Profesional, Disponibilidad
+    from django.core.exceptions import ValidationError
+    
     mensaje_error = ''
-    disponibilidades = []
     
     if request.method == 'POST':
         form = TurnoForm(request.POST, request=request)
@@ -54,12 +63,24 @@ def crear_turno(request):
                 turno.full_clean()  # Ejecuta validaciones del modelo
                 turno.save()
                 return redirect('listar_turnos')
-            except Exception as e:
-                mensaje_error = str(e)
+            except ValidationError as e:
+                # Extraer mensajes de error de ValidationError
+                if hasattr(e, 'message_dict'):
+                    mensaje_error = ' '.join([
+                        f"{field}: {', '.join(errors)}" 
+                        for field, errors in e.message_dict.items()
+                    ])
+                elif hasattr(e, 'messages'):
+                    mensaje_error = ' '.join(e.messages)
+                else:
+                    mensaje_error = str(e)
         else:
             # Capturar errores de validación del formulario
             if form.errors:
-                mensaje_error = ' '.join([f"{field}: {', '.join(errors)}" for field, errors in form.errors.items()])
+                mensaje_error = ' '.join([
+                    f"{field}: {', '.join(errors)}" 
+                    for field, errors in form.errors.items()
+                ])
     else:
         # Si el usuario es paciente, pre-seleccionar su paciente
         initial_data = {}
@@ -73,7 +94,10 @@ def crear_turno(request):
         
         form = TurnoForm(initial=initial_data, request=request)
     
-    return render(request, 'crear_turno.html', {'form': form, 'mensaje_error': mensaje_error, 'disponibilidades': disponibilidades})
+    return render(request, 'crear_turno.html', {
+        'form': form, 
+        'mensaje_error': mensaje_error
+    })
 
 @login_required
 @permission_required('turno.view_turno', raise_exception=True)
@@ -121,7 +145,7 @@ def eliminar_turno(request, pk):
     """
     Vista para eliminar un turno específico.
     """
-    turno = Turno.objects.get(pk=pk)
+    turno = get_object_or_404(Turno, pk=pk)
     if request.method == 'POST':
         turno.delete()
         return redirect('listar_turnos')
@@ -133,7 +157,7 @@ def editar_turno(request, pk):
     """
     Vista para editar los datos de un turno existente.
     """
-    turno = Turno.objects.get(pk=pk)
+    turno = get_object_or_404(Turno, pk=pk)
     if request.method == 'POST':
         form = TurnoForm(request.POST, instance=turno)
         if form.is_valid():
@@ -151,7 +175,7 @@ def marcar_turno_resuelto(request, pk):
     """
     turno = get_object_or_404(Turno, pk=pk)
     if request.method == 'POST':
-        turno.estado = RESUELTO
+        turno.estado = ESTADO_COMPLETADO
         turno.save()
     return redirect('listar_turnos')
 
@@ -163,18 +187,12 @@ def marcar_turno_cancelado(request, pk):
     """
     turno = get_object_or_404(Turno, pk=pk)
     if request.method == 'POST':
-        turno.estado = 'Cancelado'
+        turno.estado = ESTADO_CANCELADO
         turno.save()
         return redirect('listar_turnos')
     # Si no es POST, mostrar confirmación
     return render(request, 'cancelar_turno.html', {'turno': turno})
 
-from rest_framework import viewsets
-from .models import Turno
-from .serializers import TurnoSerializer
-
-from rest_framework.permissions import DjangoModelPermissions
-from django_filters.rest_framework import DjangoFilterBackend
 
 class TurnoViewSet(viewsets.ModelViewSet):
     """

@@ -1,8 +1,11 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Q
 from profesional.forms import ProfesionalForm, DisponibilidadForm
 from profesional.models import Profesional, Disponibilidad
 from django.contrib.auth.decorators import login_required, permission_required
+from rest_framework import viewsets
+from .serializers import ProfesionalSerializer, DisponibilidadSerializer
+from rest_framework.permissions import DjangoModelPermissions
 
 @login_required
 @permission_required('profesional.add_profesional', raise_exception=True)
@@ -42,7 +45,7 @@ def eliminar_profesional(request, pk):
     """
     Vista para eliminar un profesional específico.
     """
-    profesional = Profesional.objects.get(pk=pk)
+    profesional = get_object_or_404(Profesional, pk=pk)
     if request.method == 'POST':
         profesional.delete()
         return redirect('listar_profesionales')
@@ -54,7 +57,7 @@ def editar_profesional(request, pk):
     """
     Vista para editar los datos de un profesional existente.
     """
-    profesional = Profesional.objects.get(pk=pk)
+    profesional = get_object_or_404(Profesional, pk=pk)
     if request.method == 'POST':
         form = ProfesionalForm(request.POST, instance=profesional)
         if form.is_valid():
@@ -70,7 +73,7 @@ def detalle_profesional(request, pk):
     """
     Vista para mostrar el detalle de un profesional específico.
     """
-    profesional = Profesional.objects.get(pk=pk)
+    profesional = get_object_or_404(Profesional, pk=pk)
     disponibilidades = Disponibilidad.objects.filter(profesional=profesional)
     return render(request, 'detalle_profesional.html', {
         'profesional': profesional,
@@ -109,7 +112,7 @@ def crear_disponibilidad(request):
 @login_required
 @permission_required('profesional.change_disponibilidad', raise_exception=True)
 def editar_disponibilidad(request, pk):
-    disponibilidad = Disponibilidad.objects.get(pk=pk)
+    disponibilidad = get_object_or_404(Disponibilidad, pk=pk)
     if request.method == 'POST':
         form = DisponibilidadForm(request.POST, instance=disponibilidad)
         if form.is_valid():
@@ -122,19 +125,12 @@ def editar_disponibilidad(request, pk):
 @login_required
 @permission_required('profesional.delete_disponibilidad', raise_exception=True)
 def eliminar_disponibilidad(request, pk):
-    disponibilidad = Disponibilidad.objects.get(pk=pk)
+    disponibilidad = get_object_or_404(Disponibilidad, pk=pk)
     if request.method == 'POST':
         disponibilidad.delete()
         return redirect('listar_disponibilidades')
     return render(request, 'eliminar_disponibilidad.html', {'disponibilidad': disponibilidad})
 
-from rest_framework import viewsets
-from .models import Profesional
-from .models import Disponibilidad
-from .serializers import ProfesionalSerializer
-from .serializers import DisponibilidadSerializer
-
-from rest_framework.permissions import DjangoModelPermissions
 
 class ProfesionalViewSet(viewsets.ModelViewSet):
     """

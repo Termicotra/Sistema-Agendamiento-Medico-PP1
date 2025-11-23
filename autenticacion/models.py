@@ -16,11 +16,19 @@ class SolicitudRegistro(models.Model):
 	estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='pendiente')
 	fecha_solicitud = models.DateTimeField(auto_now_add=True)
 	fecha_procesada = models.DateTimeField(null=True, blank=True)
-	procesada_por = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='solicitudes_procesadas')
+	procesada_por = models.ForeignKey(
+		settings.AUTH_USER_MODEL, 
+		on_delete=models.SET_NULL, 
+		null=True, 
+		blank=True, 
+		related_name='solicitudes_procesadas'
+	)
 	
 	class Meta:
 		db_table = 'solicitud_registro'
 		ordering = ['-fecha_solicitud']
+		verbose_name = 'Solicitud de Registro'
+		verbose_name_plural = 'Solicitudes de Registro'
 	
 	def __str__(self):
-		return f"Solicitud {self.username} - {self.estado}"
+		return f"Solicitud {self.username} - {self.get_estado_display()}"

@@ -4,6 +4,7 @@ from profesional.models import Profesional, Disponibilidad
 from paciente.models import Paciente
 from empleado.models import Empleado
 
+
 class Turno(models.Model):
     class EstadoTurnoChoices(models.TextChoices):
         PENDIENTE = 'Pendiente', 'Pendiente'
@@ -19,22 +20,45 @@ class Turno(models.Model):
     fecha = models.DateField(null=False, blank=False)
     hora = models.TimeField(null=False, blank=False)
     modalidad = models.CharField(
+        max_length=20,
         choices=ModalidadTurnoChoices.choices,
         default=ModalidadTurnoChoices.PRESENCIAL
     )
     estado = models.CharField(
+        max_length=20,
         choices=EstadoTurnoChoices.choices,
         default=EstadoTurnoChoices.PENDIENTE
     )
     motivo = models.TextField(null=False, blank=False, max_length=128)
-    fue_notificado = models.BooleanField(null=False, blank=False)
-    profesional = models.ForeignKey(Profesional, on_delete=models.CASCADE, null=False, blank=False, default=None)
-    paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE, null=False, blank=False, default=None)
-    empleado = models.ForeignKey(Empleado, on_delete=models.CASCADE, null=True, blank=True, default=None)
+    fue_notificado = models.BooleanField(null=False, blank=False, default=False)
+    profesional = models.ForeignKey(
+        Profesional, 
+        on_delete=models.CASCADE, 
+        null=False, 
+        blank=False, 
+        default=None,
+        related_name='turnos'
+    )
+    paciente = models.ForeignKey(
+        Paciente, 
+        on_delete=models.CASCADE, 
+        null=False, 
+        blank=False, 
+        default=None,
+        related_name='turnos'
+    )
+    empleado = models.ForeignKey(
+        Empleado, 
+        on_delete=models.CASCADE, 
+        null=True, 
+        blank=True, 
+        default=None,
+        related_name='turnos_gestionados'
+    )
 
     def __str__(self):
-        return (f"{self.paciente.nombre} {self.paciente.apellido} {self.paciente.ci} "
-                f"{self.profesional.especialidad} {self.fecha}")
+        return (f"Turno de {self.paciente.nombre} {self.paciente.apellido} - "
+                f"{self.profesional.especialidad} ({self.fecha} {self.hora})")
     
     def _validar_turnos_duplicados(self):
         """Validar que no existan turnos duplicados para el mismo paciente y profesional."""
@@ -42,7 +66,7 @@ class Turno(models.Model):
             paciente=self.paciente,
             profesional=self.profesional,
             fecha=self.fecha,
-            estado__in=['Pendiente', 'Activo']
+            estado__in=[self.EstadoTurnoChoices.PENDIENTE, self.EstadoTurnoChoices.ACTIVO]
         )
         
         if self.pk:
@@ -56,14 +80,14 @@ class Turno(models.Model):
             )
     
     def _validar_sobreposicion_profesional(self):
-        """Validar que no haya sobreposición de horarios para el mismo profesional (cualquier paciente)."""
+        """Validar que no haya sobreposición de horarios para el mismo profesional."""
         from datetime import datetime, timedelta
         
         duracion_turno = timedelta(minutes=30)
         turnos_mismo_dia = Turno.objects.filter(
             profesional=self.profesional,
             fecha=self.fecha,
-            estado__in=['Pendiente', 'Activo']
+            estado__in=[self.EstadoTurnoChoices.PENDIENTE, self.EstadoTurnoChoices.ACTIVO]
         )
         
         if self.pk:
@@ -77,11 +101,7 @@ class Turno(models.Model):
             fin_existente = inicio_existente + duracion_turno
             
             if inicio_nuevo < fin_existente and fin_nuevo > inicio_existente:
-                # Si es el mismo paciente, mostrar un mensaje diferente
-                if turno_existente.paciente == self.paciente:
-                    mensaje_paciente = ""
-                else:
-                    mensaje_paciente = " (con otro paciente)"
+                mensaje_paciente = "" if turno_existente.paciente == self.paciente else " (con otro paciente)"
                 
                 raise ValidationError(
                     f"El horario se solapa con otro turno del profesional "
@@ -98,7 +118,7 @@ class Turno(models.Model):
         turnos_paciente = Turno.objects.filter(
             paciente=self.paciente,
             fecha=self.fecha,
-            estado__in=['Pendiente', 'Activo']
+            estado__in=[self.EstadoTurnoChoices.PENDIENTE, self.EstadoTurnoChoices.ACTIVO]
         )
         
         if self.pk:
@@ -145,7 +165,10 @@ class Turno(models.Model):
                 f"no tiene disponibilidad los días {dia_turno}."
             )
         
-        hora_valida = any(disp.hora_inicio <= self.hora <= disp.hora_fin for disp in disponibilidades)
+        hora_valida = any(
+            disp.hora_inicio <= self.hora <= disp.hora_fin 
+            for disp in disponibilidades
+        )
         
         if not hora_valida:
             horarios = ", ".join([
@@ -161,11 +184,11 @@ class Turno(models.Model):
         """Validar disponibilidad del profesional, evitar turnos duplicados y sobreposición de horarios."""
         super().clean()
         
-        if not self.profesional or not self.fecha or not self.hora or not self.paciente:
+        if not all([self.profesional, self.fecha, self.hora, self.paciente]):
             return
         
-        # Solo validar si el turno está activo o pendiente (turnos cancelados no cuentan)
-        if self.estado in ['Cancelado', 'Completado']:
+        # Solo validar si el turno está activo o pendiente
+        if self.estado in [self.EstadoTurnoChoices.CANCELADO, self.EstadoTurnoChoices.COMPLETADO]:
             return
         
         # Ejecutar todas las validaciones
@@ -176,3 +199,6 @@ class Turno(models.Model):
     
     class Meta:
         db_table = 'turno'
+        verbose_name = 'Turno'
+        verbose_name_plural = 'Turnos'
+        ordering = ['-fecha', '-hora']

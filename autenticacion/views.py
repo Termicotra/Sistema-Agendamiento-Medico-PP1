@@ -5,17 +5,18 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group, Permission, User
 from .forms import LoginForm
 from rest_framework_simplejwt.views import TokenObtainPairView
-from .serializers import MyTokenObtainPairSerializer, LogoutSerializer, RegisterSerializer, ChangePasswordSerializer, PerfilSerializer, AprobarSolicitudSerializer, SolicitudRegistroSerializer
+from .serializers import (
+    MyTokenObtainPairSerializer, LogoutSerializer, RegisterSerializer, 
+    ChangePasswordSerializer, PerfilSerializer, AprobarSolicitudSerializer, 
+    SolicitudRegistroSerializer
+)
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status, permissions, serializers
-from rest_framework import generics, status
-from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework_simplejwt.tokens import AccessToken
+from rest_framework import status, permissions, serializers, generics
+from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.contrib.auth.forms import PasswordChangeForm
 from rest_framework_simplejwt.token_blacklist.models import OutstandingToken, BlacklistedToken
-from drf_spectacular.utils import extend_schema
 from .models import SolicitudRegistro
 from django.contrib.auth.hashers import make_password
 from django.utils import timezone
@@ -53,13 +54,13 @@ def _get_user_perfil_data(user):
         # Importación dinámica del serializer
         from importlib import import_module
         serializer_module = import_module(config["serializer_path"][0])
-        SerializerClass = getattr(serializer_module, config["serializer_path"][1])
+        serializer_class = getattr(serializer_module, config["serializer_path"][1])
         
         # Obtener perfil
         perfil = getattr(user, config["model_attr"], None)
         if perfil:
             # Serializar datos
-            serializer = SerializerClass(perfil)
+            serializer = serializer_class(perfil)
             perfil_dict = serializer.data
             
             # Convertir a lista de tuplas para template
@@ -413,7 +414,6 @@ class PermissionsAPIView(APIView):
         modules = set()
         for p in perms_qs:
             model = p.content_type.model
-            app_label = p.content_type.app_label
             codename = p.codename
             # Map Django codename to expected format
             if codename.startswith('view_'):
@@ -431,8 +431,8 @@ class PermissionsAPIView(APIView):
         if 'dashboard' in [m.lower() for m in modules]:
             permissions.add('dashboard.view')
         return Response({
-            "permissions": sorted(list(permissions)),
-            "modules": sorted(list(modules)),
+            "permissions": sorted(permissions),
+            "modules": sorted(modules),
             "roles": sorted(roles)
         })
 
@@ -460,8 +460,8 @@ class LogoutView(generics.GenericAPIView):
             try:
                 token = RefreshToken(refresh_token)
                 token.blacklist()
-            except Exception:
-                return Response({'detail': 'Invalid refresh token.'}, status=status.HTTP_400_BAD_REQUEST)
+            except (ValueError, TypeError, KeyError) as e:
+                return Response({'detail': f'Invalid refresh token: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response({'detail': 'No refresh token provided.'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -479,7 +479,7 @@ class LogoutView(generics.GenericAPIView):
                         BlacklistedToken.objects.get_or_create(token=outstanding)
                     except OutstandingToken.DoesNotExist:
                         pass
-            except Exception:
+            except (ValueError, TypeError, KeyError):
                 pass
 
         return Response({"detail": "Sesión cerrada con éxito."}, status=status.HTTP_205_RESET_CONTENT)

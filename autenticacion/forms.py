@@ -1,9 +1,13 @@
 from django import forms
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import User
 from paciente.models import Paciente
 from profesional.models import Profesional
 from empleado.models import Empleado
 from .models import SolicitudRegistro
+
+# Constantes de mensajes
+ERROR_CEDULA_USUARIO_ASIGNADO = "Esta cédula ya tiene un usuario asignado."
+
 
 class RegisterForm(forms.Form):
     username = forms.CharField(max_length=150, label="Usuario")
@@ -30,22 +34,23 @@ class RegisterForm(forms.Form):
         
         # Verificar que la cédula no tenga ya un usuario asignado
         if paciente and paciente.user:
-            raise forms.ValidationError("Esta cédula ya tiene un usuario asignado.")
+            raise forms.ValidationError(ERROR_CEDULA_USUARIO_ASIGNADO)
         if profesional and profesional.user:
-            raise forms.ValidationError("Esta cédula ya tiene un usuario asignado.")
+            raise forms.ValidationError(ERROR_CEDULA_USUARIO_ASIGNADO)
         if empleado and empleado.user:
-            raise forms.ValidationError("Esta cédula ya tiene un usuario asignado.")
+            raise forms.ValidationError(ERROR_CEDULA_USUARIO_ASIGNADO)
         
         # Verificar que no haya una solicitud pendiente para esta cédula
         if SolicitudRegistro.objects.filter(ci=ci, estado='pendiente').exists():
             raise forms.ValidationError("Ya existe una solicitud pendiente con esta cédula.")
         
         return ci
-from django import forms
+
 
 class LoginForm(forms.Form):
     username = forms.CharField()
     password = forms.CharField(widget=forms.PasswordInput)
+    
     def clean_username(self):
         username = self.cleaned_data["username"].lower()
         return username

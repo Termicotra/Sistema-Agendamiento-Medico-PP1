@@ -1,5 +1,6 @@
 from django.db import models
 
+
 class Profesional(models.Model):
     id_profesional = models.AutoField(primary_key=True)
     user = models.OneToOneField('auth.User', on_delete=models.CASCADE, null=True, blank=True)
@@ -7,16 +8,19 @@ class Profesional(models.Model):
     nombre = models.CharField(null=False, blank=False, max_length=128)
     apellido = models.CharField(null=False, blank=False, max_length=128)
     fecha_nacimiento = models.DateField(null=False, blank=False)
-    direccion = models.CharField(null=True, blank=True, max_length=256)
+    direccion = models.CharField(blank=True, max_length=256, default='')
     telefono = models.CharField(null=False, blank=False, max_length=128)
     especialidad = models.CharField(null=False, blank=False, max_length=256)
     registro_profesional = models.CharField(null=False, blank=False, max_length=256)
-    otro_contacto = models.CharField(blank=True, max_length=254)
+    otro_contacto = models.CharField(blank=True, max_length=254, default='')
 
     def __str__(self):
-        return f"{self.nombre} {self.apellido}"
+        return f"{self.nombre} {self.apellido} - {self.especialidad}"
+    
     class Meta:
         db_table = 'profesional'
+        verbose_name = 'Profesional'
+        verbose_name_plural = 'Profesionales'
 
 
 class Disponibilidad(models.Model):
@@ -26,6 +30,7 @@ class Disponibilidad(models.Model):
         ("Martes", "Martes"),
         ("Miercoles", "Miércoles"),
         ("Jueves", "Jueves"),
+        ("Viernes", "Viernes"),
         ("Sabado", "Sábado"),
         ("Domingo", "Domingo"),
     ]
@@ -33,9 +38,20 @@ class Disponibilidad(models.Model):
     hora_inicio = models.TimeField(null=False, blank=False)
     hora_fin = models.TimeField(null=False, blank=False)
     esta_disponible = models.BooleanField(null=False, blank=False, default=True)
-    profesional = models.ForeignKey(Profesional, on_delete=models.CASCADE, null=False, blank=False, default=None)
+    profesional = models.ForeignKey(
+        Profesional, 
+        on_delete=models.CASCADE, 
+        null=False, 
+        blank=False, 
+        default=None,
+        related_name='disponibilidades'
+    )
 
     def __str__(self):
-        return (f"{self.profesional.nombre} {self.profesional.apellido}")
+        return (f"{self.profesional.nombre} {self.profesional.apellido} - "
+                f"{self.dia} ({self.hora_inicio} - {self.hora_fin})")
+    
     class Meta:
         db_table = 'disponibilidad'
+        verbose_name = 'Disponibilidad'
+        verbose_name_plural = 'Disponibilidades'

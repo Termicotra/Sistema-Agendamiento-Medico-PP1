@@ -1,8 +1,11 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Q
 from empleado.models import Empleado
 from empleado.forms import EmpleadoForm
 from django.contrib.auth.decorators import login_required, permission_required
+from rest_framework import viewsets
+from .serializers import EmpleadoSerializer
+from rest_framework.permissions import DjangoModelPermissions
 
 @login_required
 @permission_required('empleado.add_empleado', raise_exception=True)
@@ -42,7 +45,7 @@ def eliminar_empleado(request, pk):
     """
     Vista para eliminar un empleado específico.
     """
-    empleado = Empleado.objects.get(pk=pk)
+    empleado = get_object_or_404(Empleado, pk=pk)
     if request.method == 'POST':
         empleado.delete()
         return redirect('listar_empleados')
@@ -54,7 +57,7 @@ def editar_empleado(request, pk):
     """
     Vista para editar los datos de un empleado existente.
     """
-    empleado = Empleado.objects.get(pk=pk)
+    empleado = get_object_or_404(Empleado, pk=pk)
     if request.method == 'POST':
         form = EmpleadoForm(request.POST, instance=empleado)
         if form.is_valid():
@@ -64,12 +67,6 @@ def editar_empleado(request, pk):
         form = EmpleadoForm(instance=empleado)
     return render(request, 'editar_empleado.html', {'form': form, 'empleado': empleado})
 
-
-from rest_framework import viewsets
-from .models import Empleado
-from .serializers import EmpleadoSerializer
-
-from rest_framework.permissions import DjangoModelPermissions
 
 class EmpleadoViewSet(viewsets.ModelViewSet):
     """
