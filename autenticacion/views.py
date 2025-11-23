@@ -280,7 +280,37 @@ def procesar_solicitud_view(request, solicitud_id):
                     "error": "Debe seleccionar un grupo."
                 })
             
-            _aprobar_solicitud(solicitud, group_name, request.user)
+            # Crear usuario
+            user = User.objects.create_user(
+                username=solicitud.username,
+                password=None  # Password will be set to the hash below
+            )
+            user.password = solicitud.password_hash  # Assign only if this is a valid Django hash
+            user.save()
+            
+            # Asignar grupo
+            group = Group.objects.get(name=group_name)
+            user.groups.add(group)
+            
+            # Buscar y enlazar con perfil existente
+            if group_name == "pacientes":
+                paciente = Paciente.objects.filter(ci=solicitud.ci).first()
+                if paciente:
+                    paciente.user = user
+                    paciente.save()
+            elif group_name == "profesionales":
+                profesional = Profesional.objects.filter(ci=solicitud.ci).first()
+                if profesional:
+                    profesional.user = user
+                    profesional.save()
+            # elif group_name == "administradores": no requiere perfil adicional
+            
+            # Marcar solicitud como aprobada
+            solicitud.estado = "aprobada"
+            solicitud.fecha_procesada = timezone.now()
+            solicitud.procesada_por = request.user
+            solicitud.save()
+            
             return redirect("autenticacion:listar_solicitudes")
         
         elif accion == "rechazar":
@@ -489,6 +519,8 @@ class LogoutView(generics.GenericAPIView):
                         outstanding = OutstandingToken.objects.get(jti=jti, user=request.user)
                         BlacklistedToken.objects.get_or_create(token=outstanding)
                     except OutstandingToken.DoesNotExist:
+                        # It's possible that the access token does not have a corresponding OutstandingToken.
+                        # In this case, we can safely ignore and continue.
                         pass
             except (ValueError, TypeError, KeyError):
                 pass
