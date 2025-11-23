@@ -478,8 +478,10 @@ class LogoutView(generics.GenericAPIView):
                         outstanding = OutstandingToken.objects.get(jti=jti, user=request.user)
                         BlacklistedToken.objects.get_or_create(token=outstanding)
                     except OutstandingToken.DoesNotExist:
+                        # Token not found in database - already expired or removed, can be safely ignored
                         pass
             except (ValueError, TypeError, KeyError):
+                # Invalid access token format - silently ignore as logout should still succeed
                 pass
 
         return Response({"detail": "Sesión cerrada con éxito."}, status=status.HTTP_205_RESET_CONTENT)
