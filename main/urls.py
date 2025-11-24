@@ -29,6 +29,9 @@ from drf_yasg import openapi
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 from rest_framework.permissions import AllowAny
 from turno.views import RecordatorioTurnoViewSet
+from django.conf import settings
+from django.conf.urls.static import static
+from django.views.generic import RedirectView
 
 schemaView = get_schema_view(
     openapi.Info(
@@ -102,4 +105,11 @@ urlpatterns = [
     path('pacientes/reportes/crear/', paciente_views.crear_reporte, name='crear_reporte'),
     path('pacientes/reportes/<int:pk>/editar/', paciente_views.editar_reporte, name='editar_reporte'),
     path('pacientes/reportes/<int:pk>/eliminar/', paciente_views.eliminar_reporte, name='eliminar_reporte'),
+    # Favicon
+    path('favicon.ico', RedirectView.as_view(url=settings.STATIC_URL + 'favicon.ico', permanent=True)),
 ]
+
+# Servir archivos estáticos y media en desarrollo
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
