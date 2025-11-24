@@ -11,6 +11,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copia el resto del código fuente
 COPY . .
 
+# Crea los directorios necesarios
+RUN mkdir -p staticfiles media
+
 # Expone el puerto por defecto de Django
 EXPOSE 8000
 
