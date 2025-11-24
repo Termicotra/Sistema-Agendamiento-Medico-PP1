@@ -189,9 +189,13 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_DIRS = [
-    BASE_DIR / 'static',
-]
+
+# Solo agregar STATICFILES_DIRS si el directorio existe
+static_dir = BASE_DIR / 'static'
+if os.path.exists(static_dir):
+    STATICFILES_DIRS = [static_dir]
+else:
+    STATICFILES_DIRS = []
 
 # Configuración de WhiteNoise para servir archivos estáticos en producción
 STORAGES = {
