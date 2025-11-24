@@ -5,10 +5,7 @@ nixPkgs = ['python311', 'postgresql']
 cmds = ['pip install -r requirements.txt']
 
 [phases.build]
-cmds = [
-  'python manage.py migrate --noinput',
-  'python manage.py collectstatic --noinput'
-]
+cmds = ['chmod +x start.sh']
 
 [start]
-cmd = 'gunicorn main.wsgi:application --bind 0.0.0.0:$PORT'
+cmd = './start.sh'
