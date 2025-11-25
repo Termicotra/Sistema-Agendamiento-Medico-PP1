@@ -1,3 +1,10 @@
+# Diagrama de Arquitectura
+
+El siguiente diagrama ilustra la arquitectura por capas del sistema de agendamiento médico, mostrando la interacción entre el usuario, el frontend, el backend y la base de datos, así como los principales endpoints y servicios involucrados:
+
+![Diagrama de Arquitectura](https://user-images.githubusercontent.com/placeholder/arquitectura.png)
+
+> **Nota:** El diagrama muestra el flujo desde el usuario hasta la base de datos, incluyendo los endpoints REST.
 # Sistema de Agendamiento Médico
 
 Este sistema es una aplicación web desarrollada con Django para la gestión de turnos médicos y administración de una clínica.
