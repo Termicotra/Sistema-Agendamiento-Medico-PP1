@@ -16,6 +16,11 @@ import os
 from datetime import timedelta
 from decouple import config, Csv
 import dj_database_url
+import sys
+
+# DEBUG OUTPUT
+print("DJANGO STARTING", file=sys.stderr)
+print(f"DATABASE_URL: {os.environ.get('DATABASE_URL', 'NOT SET')}", file=sys.stderr)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
