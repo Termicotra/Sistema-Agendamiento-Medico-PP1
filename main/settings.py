@@ -254,9 +254,25 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
-    'handlers': {'null': {'class': 'logging.NullHandler'}},
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
     'loggers': {
-        'django.development': {'handlers': ['null']},
-        'django.utils.autoreload': {'handlers': ['null']},
-    }
+        'django.utils.autoreload': {'level': 'WARNING'},
+        'django.development': {'level': 'WARNING'},
+        'django.db.backends': {'level': 'INFO'},
+    },
 }
