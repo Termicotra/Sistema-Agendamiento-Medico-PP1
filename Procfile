@@ -1,1 +1,1 @@
-web: gunicorn main.wsgi --log-file - --bind 0.0.0.0:$PORT
+web: gunicorn main.wsgi -gi-log-file - --bind 0.0.0.0:$PORT
