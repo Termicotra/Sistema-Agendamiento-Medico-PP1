@@ -11,10 +11,12 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy project
 COPY . /app/
 
+# Set environment variable (si quieres mantenerla así)
 ENV SECRET_KEY='la_llave_secretisima'
 
-# Collect static files
-RUN python manage.py collectstatic --noinput
+# Optional: crear un entrypoint para manejar migraciones y collectstatic
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
 
-# Run Gunicorn
-CMD ["gunicorn", "main.wsgi:application", "--bind", "0.0.0.0:8000"]
+# Run entrypoint
+CMD ["/app/entrypoint.sh"]
