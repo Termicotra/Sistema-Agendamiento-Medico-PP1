@@ -92,6 +92,8 @@ else:
         }
     }
 
+# Debug output para verificar
+import sys
 print(f"DATABASES: {DATABASES}", file=sys.stderr)
 
 # ----------------------------
