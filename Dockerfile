@@ -1,21 +1,16 @@
-# Dockerfile para proyecto Django
 FROM python:3.12-slim
 
-# Establece el directorio de trabajo
 WORKDIR /app
 
-# Copia los archivos de requerimientos e instala dependencias requeridas
-COPY requirements.txt ./
+COPY requirements.txt /app/
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copia el resto del código fuente
-COPY . .
+COPY . /app/
 
-# Crea los directorios necesarios
-RUN mkdir -p staticfiles media
+ENV SECRET_KEY='la_llave_secretisima'
 
-# Expone el puerto por defecto de Django
-EXPOSE 8000
+# Entry point
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
 
-# Comando por defecto para correr el servidor de desarrollo
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["/app/entrypoint.sh"]
