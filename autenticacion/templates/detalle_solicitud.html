@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Detalle de Solicitud de Registro</h2>
+
+<div class="card">
+    <div class="card-body">
+        <h5>Información de la Solicitud</h5>
+        <p><strong>Fecha de solicitud:</strong> {{ solicitud.fecha_solicitud|date:"d/m/Y H:i" }}</p>
+        <p><strong>Nombre de usuario solicitado:</strong> {{ solicitud.username }}</p>
+        <p><strong>Cédula:</strong> {{ solicitud.ci }}</p>
+        <p><strong>Estado:</strong> {{ solicitud.get_estado_display }}</p>
+    </div>
+</div>
+
+{% if perfil_existente %}
+<div class="card mt-3">
+    <div class="card-body">
+        <h5>Información de {{ perfil_existente.tipo }} con esta cédula</h5>
+        <p><strong>Nombre:</strong> {{ perfil_existente.datos.nombre }} {{ perfil_existente.datos.apellido }}</p>
+        <p><strong>Cédula:</strong> {{ perfil_existente.datos.ci }}</p>
+        {% if perfil_existente.tipo == "Paciente" %}
+            <p><strong>Fecha de nacimiento:</strong> {{ perfil_existente.datos.fecha_nacimiento|date:"d/m/Y" }}</p>
+            <p><strong>Teléfono:</strong> {{ perfil_existente.datos.telefono }}</p>
+        {% elif perfil_existente.tipo == "Profesional" %}
+            <p><strong>Especialidad:</strong> {{ perfil_existente.datos.especialidad }}</p>
+            <p><strong>Registro profesional:</strong> {{ perfil_existente.datos.registro_profesional }}</p>
+        {% elif perfil_existente.tipo == "Empleado" %}
+            <p><strong>Cargo:</strong> {{ perfil_existente.datos.cargo }}</p>
+        {% endif %}
+    </div>
+</div>
+{% else %}
+<div class="alert alert-warning mt-3">
+    No se encontró ningún perfil existente con esta cédula en el sistema.
+</div>
+{% endif %}
+
+{% if solicitud.estado == "pendiente" %}
+<div class="card mt-3">
+    <div class="card-body">
+        <h5>Procesar Solicitud</h5>
+        {% if error %}
+            <div class="alert alert-danger">{{ error }}</div>
+        {% endif %}
+        
+        <!-- Formulario de aprobación (inicialmente oculto) -->
+        <form method="post" action="{% url 'autenticacion:procesar_solicitud' solicitud.id %}" id="formAprobar" style="display:none;">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label>Asignar grupo:</label>
+                <select name="group" class="form-control" required>
+                    <option value="">Seleccionar...</option>
+                    <option value="pacientes">Pacientes</option>
+                    <option value="profesionales">Profesionales</option>
+                    <option value="empleados">Empleados</option>
+                    <option value="administradores">Administradores</option>
+                </select>
+            </div>
+            <button type="submit" name="accion" value="aprobar" class="btn btn-success">Confirmar Aprobación</button>
+            <button type="button" class="btn btn-secondary" onclick="cancelarAprobacion()">Cancelar</button>
+        </form>
+        
+        <!-- Formulario de rechazo (inicialmente oculto) -->
+        <form method="post" action="{% url 'autenticacion:procesar_solicitud' solicitud.id %}" id="formRechazar" style="display:none;">
+            {% csrf_token %}
+            <p class="text-danger">¿Está seguro que desea rechazar esta solicitud?</p>
+            <button type="submit" name="accion" value="rechazar" class="btn btn-danger">Confirmar Rechazo</button>
+            <button type="button" class="btn btn-secondary" onclick="cancelarRechazo()">Cancelar</button>
+        </form>
+        
+        <!-- Botones iniciales -->
+        <div id="botonesIniciales">
+            <button type="button" class="btn btn-success" onclick="mostrarFormAprobar()">Aprobar</button>
+            <button type="button" class="btn btn-danger" onclick="mostrarFormRechazar()">Rechazar</button>
+            <a href="{% url 'autenticacion:listar_solicitudes' %}" class="btn btn-secondary">Volver</a>
+        </div>
+        
+        <script>
+            function mostrarFormAprobar() {
+                document.getElementById('botonesIniciales').style.display = 'none';
+                document.getElementById('formAprobar').style.display = 'block';
+            }
+            
+            function cancelarAprobacion() {
+                document.getElementById('formAprobar').style.display = 'none';
+                document.getElementById('botonesIniciales').style.display = 'block';
+            }
+            
+            function mostrarFormRechazar() {
+                document.getElementById('botonesIniciales').style.display = 'none';
+                document.getElementById('formRechazar').style.display = 'block';
+            }
+            
+            function cancelarRechazo() {
+                document.getElementById('formRechazar').style.display = 'none';
+                document.getElementById('botonesIniciales').style.display = 'block';
+            }
+        </script>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

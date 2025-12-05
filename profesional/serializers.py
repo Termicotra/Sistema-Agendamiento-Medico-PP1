@@ -7,6 +7,7 @@ class ProfesionalSerializer(serializers.ModelSerializer):
     nombre = serializers.CharField(help_text="Nombre del profesional")
     apellido = serializers.CharField(help_text="Apellido del profesional")
     especialidad = serializers.CharField(help_text="Especialidad médica del profesional")
+    registro_profesional = serializers.CharField(help_text="Registro profesional del médico")
     fecha_nacimiento = serializers.DateField(help_text="Fecha de nacimiento del profesional")
     direccion = serializers.CharField(help_text="Dirección del profesional", required=False, allow_blank=True)
     telefono = serializers.CharField(help_text="Teléfono de contacto principal")
@@ -14,7 +15,7 @@ class ProfesionalSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Profesional
-        fields = '__all__'
+        exclude = ['user']  # Excluir el campo user
 
 class DisponibilidadSerializer(serializers.ModelSerializer):
     profesional = ProfesionalSerializer(read_only=True)

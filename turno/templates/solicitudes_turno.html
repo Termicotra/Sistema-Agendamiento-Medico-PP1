@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Solicitudes de Turno Pendientes</h2>
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Paciente</th>
+            <th>Profesional</th>
+            <th>Fecha</th>
+            <th>Hora</th>
+            <th>Motivo</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for turno in turnos %}
+        <tr>
+            <td>{{ turno.id_turno }}</td>
+            <td>{{ turno.paciente.nombre }} {{ turno.paciente.apellido }}</td>
+            <td>{{ turno.profesional.nombre }} {{ turno.profesional.apellido }}</td>
+            <td>{{ turno.fecha }}</td>
+            <td>{{ turno.hora }}</td>
+            <td>{{ turno.motivo }}</td>
+            <td>
+                <form method="post" action="{% url 'marcar_turno_activo' turno.id_turno %}">
+                    {% csrf_token %}
+                    <button type="submit">Marcar como Activo</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

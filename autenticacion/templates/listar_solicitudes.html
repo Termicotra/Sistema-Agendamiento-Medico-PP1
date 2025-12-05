@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Solicitudes de Registro Pendientes</h2>
+
+{% if solicitudes %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Nombre de Usuario</th>
+                <th>Cédula</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for solicitud in solicitudes %}
+            <tr>
+                <td>{{ solicitud.fecha_solicitud|date:"d/m/Y H:i" }}</td>
+                <td>{{ solicitud.username }}</td>
+                <td>{{ solicitud.ci }}</td>
+                <td>{{ solicitud.get_estado_display }}</td>
+                <td>
+                    <a href="{% url 'autenticacion:detalle_solicitud' solicitud.id %}" class="btn btn-primary">Ver Detalle</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>No hay solicitudes pendientes.</p>
+{% endif %}
+{% endblock %}

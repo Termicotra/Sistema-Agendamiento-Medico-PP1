@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Perfil de usuario</h2>
+<p><strong>Usuario:</strong> {{ user.username }}</p>
+<p><strong>Email:</strong> {{ user.email }}</p>
+<p><strong>Nombre:</strong> {{ user.first_name }}</p>
+<p><strong>Apellido:</strong> {{ user.last_name }}</p>
+<p><strong>Grupo:</strong> {{ group }}</p>
+
+{% if perfil %}
+    <h3>Datos de {{ group }}</h3>
+    {% for label, value in perfil_data %}
+        {% if value %}
+            <p><strong>{{ label }}:</strong> {{ value }}</p>
+        {% endif %}
+    {% endfor %}
+{% endif %}
+
+<a href="{% url 'autenticacion:cambiar_contrasena' %}" class="btn btn-primary">Cambiar contraseña</a>
+<a href="{% url 'menu_principal' %}" class="btn btn-secondary">Volver al Dashboard</a>
+{% endblock %}

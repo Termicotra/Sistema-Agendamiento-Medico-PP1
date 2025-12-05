@@ -1,0 +1,7 @@
+{% extends "base_simple.html" %}
+{% block content %}
+<h2>Solicitud de registro enviada</h2>
+<p>Tu solicitud de registro ha sido enviada correctamente.</p>
+<p>Un administrador la revisará y procesará pronto. Recibirás notificación cuando sea aprobada.</p>
+<a href="{% url 'autenticacion:login' %}">Volver al login</a>
+{% endblock %}

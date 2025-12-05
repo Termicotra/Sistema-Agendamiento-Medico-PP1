@@ -44,5 +44,25 @@
             </div>
         </div>
     </div>
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-file-earmark-text fs-1 text-primary"></i>
+                <h5 class="card-title mt-2">Solicitudes</h5>
+                <p class="text-muted">Gestiona solicitudes de registro.</p>
+                <a href="{% url 'autenticacion:listar_solicitudes' %}" class="btn btn-primary">Ver Solicitudes</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body text-center">
+                <i class="bi bi-calendar-plus fs-1 text-success"></i>
+                <h5 class="card-title mt-2">Solicitudes Turno</h5>
+                <p class="text-muted">Gestiona las solicitudes de turnos pendientes.</p>
+                <a href="{% url 'solicitudes_turno' %}" class="btn btn-success">Ver Solicitudes Turno</a>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

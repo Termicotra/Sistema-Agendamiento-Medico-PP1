@@ -1,3 +1,10 @@
+# Diagrama de Arquitectura
+
+El siguiente diagrama ilustra la arquitectura por capas del sistema de agendamiento médico, mostrando la interacción entre el usuario, el frontend, el backend y la base de datos, así como los principales endpoints y servicios involucrados:
+
+![Diagrama de Arquitectura](docs/images/arquitectura.png)
+
+> **Nota:** El diagrama muestra el flujo desde el usuario hasta la base de datos, incluyendo los endpoints REST y la integración con servicios externos para notificaciones.
 # Sistema de Agendamiento Médico
 
 Este sistema es una aplicación web desarrollada con Django para la gestión de turnos médicos y administración de una clínica.
@@ -117,3 +124,52 @@ Si deseas contribuir al proyecto:
 
 ## Licencia
 Este proyecto está bajo la licencia [MIT](https://opensource.org/licenses/MIT)
+
+## Actualización: Autenticación con JWT
+
+Se ha implementado un sistema de autenticación basado en JSON Web Tokens (JWT) utilizando la biblioteca SimpleJWT. Esto incluye las siguientes características:
+
+### Características
+- **Inicio de sesión con JWT**: Los usuarios pueden autenticarse y recibir un par de tokens (access y refresh).
+- **Cierre de sesión**: Los tokens de acceso y de actualización se invalidan al cerrar sesión.
+- **Lista negra de tokens**: Los tokens de acceso y actualización se almacenan en una lista negra para evitar su reutilización.
+- **Autenticación personalizada**: Se ha añadido una clase de autenticación personalizada para manejar tokens en lista negra.
+
+### Uso
+1. **Inicio de sesión**:
+   - Endpoint: `auth/api/login/`
+   - Método: `POST`
+   - Cuerpo:
+     ```json
+     {
+       "username": "usuario",
+       "password": "contraseña"
+     }
+     ```
+   - Respuesta:
+     ```json
+     {
+       "refresh": "<refresh_token>",
+       "access": "<access_token>"
+     }
+     ```
+
+2. **Cierre de sesión**:
+   - Endpoint: `auth/api/logout/`
+   - Método: `POST`
+   - Encabezado: `Authorization: Bearer <access_token>`
+   - Cuerpo:
+     ```json
+     {
+       "refresh": "<refresh_token>"
+     }
+     ```
+
+### Requisitos Adicionales
+Asegúrate de tener las siguientes dependencias instaladas:
+- `djangorestframework-simplejwt`
+
+Instalación:
+```bash
+pip install djangorestframework-simplejwt
+```

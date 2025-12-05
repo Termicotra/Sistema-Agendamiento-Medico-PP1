@@ -17,11 +17,30 @@
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse" id="navbarNav">                <ul class="navbar-nav ms-auto">
+            <!-- Centered user info (visible when authenticated) -->
+            <div class="mx-auto text-center d-flex align-items-center" style="gap:0.5rem;">
+                {% if request.user.is_authenticated %}
+                    <a href="{% url 'autenticacion:perfil' %}" class="btn btn-sm btn-outline-light">
+                        <i class="bi bi-person-circle"></i> Perfil
+                    </a>
+                    <form method="post" action="{% url 'autenticacion:logout' %}" class="d-inline ms-2">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-outline-light">Cerrar sesión</button>
+                    </form>
+                {% endif %}
+            </div>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
                     <li class="nav-item"><a class="nav-link" href="{% url 'listar_pacientes' %}"><i class="bi bi-people"></i> Pacientes</a></li>
                     <li class="nav-item"><a class="nav-link" href="{% url 'listar_turnos' %}"><i class="bi bi-calendar-check"></i> Turnos</a></li>
                     <li class="nav-item"><a class="nav-link" href="{% url 'listar_profesionales' %}"><i class="bi bi-person-badge"></i> Profesionales</a></li>
                     <li class="nav-item"><a class="nav-link" href="{% url 'listar_empleados' %}"><i class="bi bi-person-workspace"></i> Empleados</a></li>
+                    {% if request.user.is_authenticated and request.user.groups.filter|default:"" %}
+                        {% if request.user.groups.all.0.name == "administradores" %}
+                            <li class="nav-item"><a class="nav-link" href="{% url 'autenticacion:listar_solicitudes' %}"><i class="bi bi-file-earmark-text"></i> Solicitudes</a></li>
+                        {% endif %}
+                    {% endif %}
                 </ul>
             </div>
         </div>

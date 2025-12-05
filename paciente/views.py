@@ -1,10 +1,69 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect, get_object_or_404
 from paciente.models import Paciente, HistorialClinico, ReporteMedico
-from paciente.forms import PacienteForm
-from django.shortcuts import redirect
-from django.http import HttpResponse
+from paciente.forms import PacienteForm, HistorialClinicoForm, ReporteMedicoForm
+from django.contrib.auth.decorators import login_required, permission_required
 from django.db.models import Q
+from rest_framework import viewsets
+from rest_framework.permissions import DjangoModelPermissions
+from .serializers import PacienteSerializer, HistorialClinicoSerializer, ReporteMedicoSerializer
+from .filters import PacienteFilter, HistorialClinicoFilter
+from django_filters.rest_framework import DjangoFilterBackend
 
+def _get_paciente_for_user(user):
+    """Obtiene el paciente asociado al usuario actual."""
+    if hasattr(user, 'paciente'):
+        return [user.paciente]
+    return list(Paciente.objects.filter(ci=user.username)[:1])
+
+def _get_historiales_for_user(user):
+    """Obtiene historiales del paciente asociado al usuario."""
+    if hasattr(user, 'paciente'):
+        return HistorialClinico.objects.filter(paciente=user.paciente)
+    return HistorialClinico.objects.filter(paciente__ci=user.username)
+
+def _build_paciente_filters(query):
+    """Construye filtros de búsqueda para pacientes."""
+    partes = query.replace('+', ' ').split()
+    
+    if len(partes) == 1 and partes[0].isdigit():
+        return Q(ci__icontains=partes[0])
+    
+    if len(partes) > 1:
+        filtros = Q()
+        for parte in partes:
+            if parte.isdigit():
+                filtros |= Q(ci__icontains=parte)
+            else:
+                filtros |= Q(nombre__icontains=parte) | Q(apellido__icontains=parte)
+        return filtros
+    
+    return Q(nombre__icontains=query) | Q(apellido__icontains=query) | Q(ci__icontains=query)
+
+def _build_historial_filters(query):
+    """Construye filtros de búsqueda para historiales clínicos."""
+    partes = query.replace('+', ' ').split()
+    
+    if len(partes) == 1 and partes[0].isdigit():
+        return Q(paciente__ci__icontains=partes[0])
+    
+    if len(partes) > 1:
+        filtros = Q()
+        for parte in partes:
+            if parte.isdigit():
+                filtros |= Q(paciente__ci__icontains=parte)
+            else:
+                filtros |= Q(paciente__nombre__icontains=parte) | Q(paciente__apellido__icontains=parte)
+        return filtros
+    
+    return (Q(paciente__nombre__icontains=query) |
+            Q(paciente__apellido__icontains=query) |
+            Q(paciente__ci__icontains=query) |
+            Q(profesional__nombre__icontains=query) |
+            Q(profesional__apellido__icontains=query) |
+            Q(fecha__icontains=query))
+
+@login_required
+@permission_required('paciente.add_paciente', raise_exception=True)
 def crear_paciente(request):
     """
     Vista para crear un nuevo paciente mediante un formulario web.
@@ -18,48 +77,41 @@ def crear_paciente(request):
         form = PacienteForm()
     return render(request, 'crear_paciente.html', {'form': form})
 
+@login_required
+@permission_required('paciente.view_paciente', raise_exception=True)
 def listar_pacientes(request):
     """
-    Vista para listar y buscar pacientes registrados en el sistema.
+    Vista para listar pacientes. Si el usuario es del grupo 'Pacientes', solo ve su propio perfil.
     """
+    if request.user.groups.filter(name='Pacientes').exists():
+        pacientes = _get_paciente_for_user(request.user)
+        return render(request, 'listar_pacientes.html', {'pacientes': pacientes, 'q': ''})
+    
     query = request.GET.get('q', '').strip()
     pacientes = Paciente.objects.all()
     if query:
-        partes = query.replace('+', ' ').split()
-        # Si el query es solo un CI (todo numérico)
-        if len(partes) == 1 and partes[0].isdigit():
-            pacientes = pacientes.filter(ci__icontains=partes[0])
-        elif len(partes) > 1:
-            filtros = Q()
-            for parte in partes:
-                if parte.isdigit():
-                    filtros |= Q(ci__icontains=parte)
-                else:
-                    filtros |= Q(nombre__icontains=parte) | Q(apellido__icontains=parte)
-            pacientes = pacientes.filter(filtros)
-        else:
-            pacientes = pacientes.filter(
-                Q(nombre__icontains=query) |
-                Q(apellido__icontains=query) |
-                Q(ci__icontains=query)
-            )
+        pacientes = pacientes.filter(_build_paciente_filters(query))
     return render(request, 'listar_pacientes.html', {'pacientes': pacientes, 'q': query})
 
+@login_required
+@permission_required('paciente.delete_paciente', raise_exception=True)
 def eliminar_paciente(request, pk):
     """
     Vista para eliminar un paciente específico.
     """
-    paciente = Paciente.objects.get(pk=pk)
+    paciente = get_object_or_404(Paciente, pk=pk)
     if request.method == 'POST':
         paciente.delete()
         return redirect('listar_pacientes')
     return render(request, 'eliminar_paciente.html', {'paciente': paciente})
 
+@login_required
+@permission_required('paciente.change_paciente', raise_exception=True)
 def editar_paciente(request, pk):
     """
     Vista para editar los datos de un paciente existente.
     """
-    paciente = Paciente.objects.get(pk=pk)
+    paciente = get_object_or_404(Paciente, pk=pk)
     if request.method == 'POST':
         form = PacienteForm(request.POST, instance=paciente)
         if form.is_valid():
@@ -69,43 +121,28 @@ def editar_paciente(request, pk):
         form = PacienteForm(instance=paciente)
     return render(request, 'editar_paciente.html', {'form': form, 'paciente': paciente})
 
+@login_required
+@permission_required('paciente.view_historialclinico', raise_exception=True)
 def listar_historiales(request):
     """
-    Vista para listar y buscar historiales clínicos de pacientes.
+    Vista para listar historiales. Si el usuario es del grupo 'Pacientes', solo ve sus propios historiales.
     """
+    if request.user.groups.filter(name='Pacientes').exists():
+        historiales = _get_historiales_for_user(request.user)
+        return render(request, 'listar_historiales.html', {'historiales': historiales, 'q': ''})
+    
     query = request.GET.get('q', '').strip()
     historiales = HistorialClinico.objects.select_related('paciente', 'profesional').all()
     if query:
-        partes = query.replace('+', ' ').split()
-        # Si el query es solo un CI (todo numérico)
-        if len(partes) == 1 and partes[0].isdigit():
-            historiales = historiales.filter(paciente__ci__icontains=partes[0])
-        # Si el query tiene más de una palabra, buscar cada palabra en nombre o apellido (OR)
-        elif len(partes) > 1:
-            filtros = Q()
-            for parte in partes:
-                if parte.isdigit():
-                    filtros |= Q(paciente__ci__icontains=parte)
-                else:
-                    filtros |= Q(paciente__nombre__icontains=parte) | Q(paciente__apellido__icontains=parte)
-            historiales = historiales.filter(filtros)
-        # Si es una sola palabra, buscar en nombre, apellido y ci (OR)
-        else:
-            historiales = historiales.filter(
-                Q(paciente__nombre__icontains=query) |
-                Q(paciente__apellido__icontains=query) |
-                Q(paciente__ci__icontains=query) |
-                Q(profesional__nombre__icontains=query) |
-                Q(profesional__apellido__icontains=query) |
-                Q(fecha__icontains=query)
-            )
+        historiales = historiales.filter(_build_historial_filters(query))
     return render(request, 'listar_historiales.html', {'historiales': historiales, 'q': query})
 
+@login_required
+@permission_required('paciente.add_historialclinico', raise_exception=True)
 def crear_historial(request):
     """
     Vista para crear un nuevo historial clínico para un paciente.
     """
-    from paciente.forms import HistorialClinicoForm
     if request.method == 'POST':
         form = HistorialClinicoForm(request.POST)
         if form.is_valid():
@@ -115,12 +152,13 @@ def crear_historial(request):
         form = HistorialClinicoForm()
     return render(request, 'crear_historial.html', {'form': form})
 
+@login_required
+@permission_required('paciente.change_historialclinico', raise_exception=True)
 def editar_historial(request, pk):
     """
     Vista para editar un historial clínico existente.
     """
-    from paciente.forms import HistorialClinicoForm
-    historial = HistorialClinico.objects.get(pk=pk)
+    historial = get_object_or_404(HistorialClinico, pk=pk)
     if request.method == 'POST':
         form = HistorialClinicoForm(request.POST, instance=historial)
         if form.is_valid():
@@ -130,16 +168,20 @@ def editar_historial(request, pk):
         form = HistorialClinicoForm(instance=historial)
     return render(request, 'editar_historial.html', {'form': form, 'historial': historial})
 
+@login_required
+@permission_required('paciente.delete_historialclinico', raise_exception=True)
 def eliminar_historial(request, pk):
     """
     Vista para eliminar un historial clínico específico.
     """
-    historial = HistorialClinico.objects.get(pk=pk)
+    historial = get_object_or_404(HistorialClinico, pk=pk)
     if request.method == 'POST':
         historial.delete()
         return redirect('listar_historiales')
     return render(request, 'eliminar_historial.html', {'historial': historial})
 
+@login_required
+@permission_required('paciente.view_reportemedico', raise_exception=True)
 def listar_reportes(request):
     """
     Vista para listar y buscar reportes médicos de pacientes.
@@ -156,11 +198,12 @@ def listar_reportes(request):
         )
     return render(request, 'listar_reportes.html', {'reportes': reportes, 'q': query})
 
+@login_required
+@permission_required('paciente.add_reportemedico', raise_exception=True)
 def crear_reporte(request):
     """
     Vista para crear un nuevo reporte médico para un paciente.
     """
-    from paciente.forms import ReporteMedicoForm
     if request.method == 'POST':
         form = ReporteMedicoForm(request.POST)
         if form.is_valid():
@@ -170,12 +213,13 @@ def crear_reporte(request):
         form = ReporteMedicoForm()
     return render(request, 'crear_reporte.html', {'form': form})
 
+@login_required
+@permission_required('paciente.change_reportemedico', raise_exception=True)
 def editar_reporte(request, pk):
     """
     Vista para editar un reporte médico existente.
     """
-    from paciente.forms import ReporteMedicoForm
-    reporte = ReporteMedico.objects.get(pk=pk)
+    reporte = get_object_or_404(ReporteMedico, pk=pk)
     if request.method == 'POST':
         form = ReporteMedicoForm(request.POST, instance=reporte)
         if form.is_valid():
@@ -185,11 +229,13 @@ def editar_reporte(request, pk):
         form = ReporteMedicoForm(instance=reporte)
     return render(request, 'editar_reporte.html', {'form': form, 'reporte': reporte})
 
+@login_required
+@permission_required('paciente.delete_reportemedico', raise_exception=True)
 def eliminar_reporte(request, pk):
     """
     Vista para eliminar un reporte médico específico.
     """
-    reporte = ReporteMedico.objects.get(pk=pk)
+    reporte = get_object_or_404(ReporteMedico, pk=pk)
     if request.method == 'POST':
         reporte.delete()
         return redirect('listar_reportes')
@@ -225,16 +271,6 @@ def listar_reportes_medicos(request):
             )
     return render(request, 'listar_reportes_medicos.html', {'reportes': reportes, 'q': query})
 
-from rest_framework import viewsets
-from .models import Paciente
-from .models import HistorialClinico
-from .models import ReporteMedico
-from .serializers import PacienteSerializer
-from .serializers import HistorialClinicoSerializer
-from .serializers import ReporteMedicoSerializer 
-from .filters import PacienteFilter
-from .filters import HistorialClinicoFilter
-from django_filters.rest_framework import DjangoFilterBackend
 
 
 class PacienteViewSet(viewsets.ModelViewSet):
@@ -244,6 +280,8 @@ class PacienteViewSet(viewsets.ModelViewSet):
     """
     queryset = Paciente.objects.all()
     serializer_class = PacienteSerializer
+    permission_classes = [DjangoModelPermissions]
+    http_method_names = ['get', 'post', 'put', 'patch', 'delete', 'head', 'options']
     filter_backends = [DjangoFilterBackend]
     filterset_class = PacienteFilter
 
@@ -254,6 +292,8 @@ class HistorialClinicoViewSet(viewsets.ModelViewSet):
     """
     queryset = HistorialClinico.objects.all()
     serializer_class = HistorialClinicoSerializer
+    permission_classes = [DjangoModelPermissions]
+    http_method_names = ['get', 'post', 'put', 'patch', 'delete', 'head', 'options']
     filter_backends = [DjangoFilterBackend]
     filterset_class = HistorialClinicoFilter
 
@@ -264,3 +304,5 @@ class ReporteMedicoViewSet(viewsets.ModelViewSet):
     """
     queryset = ReporteMedico.objects.all()
     serializer_class = ReporteMedicoSerializer
+    permission_classes = [DjangoModelPermissions]
+    http_method_names = ['get', 'post', 'put', 'patch', 'delete', 'head', 'options']

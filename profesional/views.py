@@ -1,8 +1,14 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Q
 from profesional.forms import ProfesionalForm, DisponibilidadForm
 from profesional.models import Profesional, Disponibilidad
+from django.contrib.auth.decorators import login_required, permission_required
+from rest_framework import viewsets
+from .serializers import ProfesionalSerializer, DisponibilidadSerializer
+from rest_framework.permissions import DjangoModelPermissions
 
+@login_required
+@permission_required('profesional.add_profesional', raise_exception=True)
 def crear_profesional(request):
     """
     Vista para crear un nuevo profesional mediante un formulario web.
@@ -16,6 +22,8 @@ def crear_profesional(request):
         form = ProfesionalForm()
     return render(request, 'crear_profesional.html', {'form': form})
 
+@login_required
+@permission_required('profesional.view_profesional', raise_exception=True)
 def listar_profesionales(request):
     """
     Vista para listar y buscar profesionales registrados en el sistema.
@@ -31,21 +39,25 @@ def listar_profesionales(request):
         )
     return render(request, 'listar_profesionales.html', {'profesionales': profesionales, 'q': query})
 
+@login_required
+@permission_required('profesional.delete_profesional', raise_exception=True)
 def eliminar_profesional(request, pk):
     """
     Vista para eliminar un profesional específico.
     """
-    profesional = Profesional.objects.get(pk=pk)
+    profesional = get_object_or_404(Profesional, pk=pk)
     if request.method == 'POST':
         profesional.delete()
         return redirect('listar_profesionales')
     return render(request, 'eliminar_profesional.html', {'profesional': profesional})
 
+@login_required
+@permission_required('profesional.change_profesional', raise_exception=True)
 def editar_profesional(request, pk):
     """
     Vista para editar los datos de un profesional existente.
     """
-    profesional = Profesional.objects.get(pk=pk)
+    profesional = get_object_or_404(Profesional, pk=pk)
     if request.method == 'POST':
         form = ProfesionalForm(request.POST, instance=profesional)
         if form.is_valid():
@@ -55,17 +67,21 @@ def editar_profesional(request, pk):
         form = ProfesionalForm(instance=profesional)
     return render(request, 'editar_profesional.html', {'form': form, 'profesional': profesional})
 
+@login_required
+@permission_required('profesional.view_profesional', raise_exception=True)
 def detalle_profesional(request, pk):
     """
     Vista para mostrar el detalle de un profesional específico.
     """
-    profesional = Profesional.objects.get(pk=pk)
+    profesional = get_object_or_404(Profesional, pk=pk)
     disponibilidades = Disponibilidad.objects.filter(profesional=profesional)
     return render(request, 'detalle_profesional.html', {
         'profesional': profesional,
         'disponibilidades': disponibilidades
     })
 
+@login_required
+@permission_required('profesional.view_disponibilidad', raise_exception=True)
 def listar_disponibilidades(request):
     profesional_id = request.GET.get('profesional')
     disponibilidades = Disponibilidad.objects.select_related('profesional').all()
@@ -81,6 +97,8 @@ def listar_disponibilidades(request):
         'profesional_filtrado': profesional_filtrado
     })
 
+@login_required
+@permission_required('profesional.add_disponibilidad', raise_exception=True)
 def crear_disponibilidad(request):
     if request.method == 'POST':
         form = DisponibilidadForm(request.POST)
@@ -91,8 +109,10 @@ def crear_disponibilidad(request):
         form = DisponibilidadForm()
     return render(request, 'crear_disponibilidad.html', {'form': form})
 
+@login_required
+@permission_required('profesional.change_disponibilidad', raise_exception=True)
 def editar_disponibilidad(request, pk):
-    disponibilidad = Disponibilidad.objects.get(pk=pk)
+    disponibilidad = get_object_or_404(Disponibilidad, pk=pk)
     if request.method == 'POST':
         form = DisponibilidadForm(request.POST, instance=disponibilidad)
         if form.is_valid():
@@ -102,18 +122,15 @@ def editar_disponibilidad(request, pk):
         form = DisponibilidadForm(instance=disponibilidad)
     return render(request, 'editar_disponibilidad.html', {'form': form, 'disponibilidad': disponibilidad})
 
+@login_required
+@permission_required('profesional.delete_disponibilidad', raise_exception=True)
 def eliminar_disponibilidad(request, pk):
-    disponibilidad = Disponibilidad.objects.get(pk=pk)
+    disponibilidad = get_object_or_404(Disponibilidad, pk=pk)
     if request.method == 'POST':
         disponibilidad.delete()
         return redirect('listar_disponibilidades')
     return render(request, 'eliminar_disponibilidad.html', {'disponibilidad': disponibilidad})
 
-from rest_framework import viewsets
-from .models import Profesional
-from .models import Disponibilidad
-from .serializers import ProfesionalSerializer
-from .serializers import DisponibilidadSerializer
 
 class ProfesionalViewSet(viewsets.ModelViewSet):
     """
@@ -122,6 +139,8 @@ class ProfesionalViewSet(viewsets.ModelViewSet):
     """
     queryset = Profesional.objects.all()
     serializer_class = ProfesionalSerializer
+    permission_classes = [DjangoModelPermissions]
+    http_method_names = ['get', 'post', 'put', 'patch', 'delete', 'head', 'options']
 
 class DisponibilidadViewSet(viewsets.ModelViewSet):
     """
@@ -130,3 +149,12 @@ class DisponibilidadViewSet(viewsets.ModelViewSet):
     """
     queryset = Disponibilidad.objects.all()
     serializer_class = DisponibilidadSerializer
+    permission_classes = [DjangoModelPermissions]
+    http_method_names = ['get', 'post', 'put', 'patch', 'delete', 'head', 'options']
+
+    def get_queryset(self):
+        queryset = Disponibilidad.objects.all()
+        profesional_id = self.request.query_params.get('profesional')
+        if profesional_id:
+            queryset = queryset.filter(profesional_id=profesional_id)
+        return queryset

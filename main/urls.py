@@ -21,6 +21,7 @@ from empleado import views as empleado_views
 from profesional import views as profesional_views
 from turno import views as turno_views
 from django.shortcuts import render
+from autenticacion.views import home_view, paciente_dashboard, profesional_dashboard
 from paciente import views as paciente_views
 from rest_framework import routers
 from drf_yasg.views import get_schema_view
@@ -28,6 +29,9 @@ from drf_yasg import openapi
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 from rest_framework.permissions import AllowAny
 from turno.views import RecordatorioTurnoViewSet
+from django.conf import settings
+from django.conf.urls.static import static
+from django.views.generic import RedirectView
 
 schemaView = get_schema_view(
     openapi.Info(
@@ -52,11 +56,14 @@ router.register(r'recordatoriosTurno', RecordatorioTurnoViewSet)
 
 urlpatterns = [
     path('api/', include(router.urls)),
+    path('auth/', include(('autenticacion.urls', 'autenticacion'), namespace='autenticacion')),
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
     path('swagger/', schemaView.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
-    path('', lambda request: render(request, 'menu_principal.html'), name='menu_principal'),
+    path('', home_view, name='menu_principal'),
+    path('dashboard/paciente/', paciente_dashboard, name='paciente_dashboard'),
+    path('dashboard/profesional/', profesional_dashboard, name='profesional_dashboard'),
     path('admin/', admin.site.urls),
     path('paciente/crear/', views.crear_paciente, name='crear_paciente'),
     path('paciente/', views.listar_pacientes, name='listar_pacientes'),
@@ -81,6 +88,10 @@ urlpatterns = [
     path('turno/<int:pk>/resuelto/', turno_views.marcar_turno_resuelto, name='marcar_turno_resuelto'),
     path('turno/<int:pk>/cancelado/', turno_views.marcar_turno_cancelado, name='marcar_turno_cancelado'),
 
+    # Módulo de Solicitudes Turno
+    path('solicitudes-turno/', turno_views.solicitudes_turno, name='solicitudes_turno'),
+    path('solicitudes-turno/<int:pk>/marcar-activo/', turno_views.marcar_turno_activo, name='marcar_turno_activo'),
+
     path('disponibilidad/', profesional_views.listar_disponibilidades, name='listar_disponibilidades'),
     path('disponibilidad/crear/', profesional_views.crear_disponibilidad, name='crear_disponibilidad'),
     path('disponibilidad/editar/<int:pk>/', profesional_views.editar_disponibilidad, name='editar_disponibilidad'),
@@ -94,4 +105,11 @@ urlpatterns = [
     path('pacientes/reportes/crear/', paciente_views.crear_reporte, name='crear_reporte'),
     path('pacientes/reportes/<int:pk>/editar/', paciente_views.editar_reporte, name='editar_reporte'),
     path('pacientes/reportes/<int:pk>/eliminar/', paciente_views.eliminar_reporte, name='eliminar_reporte'),
+    # Favicon
+    path('favicon.ico', RedirectView.as_view(url=settings.STATIC_URL + 'favicon.ico', permanent=True)),
 ]
+
+# Servir archivos estáticos y media en desarrollo
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
